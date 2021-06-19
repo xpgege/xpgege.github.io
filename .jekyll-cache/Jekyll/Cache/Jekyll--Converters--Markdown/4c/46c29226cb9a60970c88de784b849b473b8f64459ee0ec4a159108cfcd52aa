@@ -1,0 +1,54 @@
+I"c
+<h2 id="psql介绍">psql介绍</h2>
+
+<p><code class="language-plaintext highlighter-rouge">psql</code> 是 <code class="language-plaintext highlighter-rouge">PgSQL</code> 中的一个命令行交互式客户端工具，允许我们键入SQL或命令，然后把他们发出给 PgSQL服务器，再显示SQL或命令的结果。</p>
+
+<h2 id="psql的常用命令">psql的常用命令</h2>
+
+<ul>
+  <li>
+    <p><code class="language-plaintext highlighter-rouge">\l</code> 列出所有数据库</p>
+  </li>
+  <li>
+    <p><code class="language-plaintext highlighter-rouge">\c dbname</code> 连接指定数据库</p>
+  </li>
+  <li>
+    <p><code class="language-plaintext highlighter-rouge">\timing on</code>: 显示SQL执行时间</p>
+  </li>
+  <li>
+    <p><code class="language-plaintext highlighter-rouge">\d</code> <code class="language-plaintext highlighter-rouge">\dt</code>: 列出当前数据库中的所有表</p>
+  </li>
+  <li>
+    <p><code class="language-plaintext highlighter-rouge">\d &lt;tableName&gt;</code>: 显示这个表的结构定义, tebleName还可以换成索引、序列、视图、函数这些对象类型</p>
+  </li>
+  <li>
+    <p><code class="language-plaintext highlighter-rouge">\d+</code>: 显示比<code class="language-plaintext highlighter-rouge">\d</code> 更详细的信息</p>
+  </li>
+  <li>
+    <p><code class="language-plaintext highlighter-rouge">\dn</code>: 列出所有的schema</p>
+  </li>
+  <li>
+    <p><code class="language-plaintext highlighter-rouge">\db</code>: 显示所有表空间</p>
+
+    <p>tips: PgSQL的表空间就是对应一个目录，放在这个表空间的表，就是把表的数据文件放到这个表空间目录下</p>
+  </li>
+  <li>
+    <p><code class="language-plaintext highlighter-rouge">\du</code> <code class="language-plaintext highlighter-rouge">\dg</code>:  显示数据库中所有角色或用户</p>
+  </li>
+  <li>
+    <p><code class="language-plaintext highlighter-rouge">\dp</code> <code class="language-plaintext highlighter-rouge">\z</code>: 显示表的权限分配情况</p>
+  </li>
+  <li>
+    <p><code class="language-plaintext highlighter-rouge">\x</code>: 把表中每一行的每列数据都拆分为单行显示</p>
+  </li>
+  <li>
+    <p><code class="language-plaintext highlighter-rouge">\i &lt;文件名&gt;</code> 执行存储在外部文件中的sql语句或命令。</p>
+  </li>
+  <li>
+    <p><code class="language-plaintext highlighter-rouge">\echo &lt;content&gt;</code>: 用于输出一行信息，常用于.sql脚本文件中输出一些提示信息</p>
+  </li>
+  <li>
+    <p><code class="language-plaintext highlighter-rouge">\?</code> 更多命令</p>
+  </li>
+</ul>
+:ET

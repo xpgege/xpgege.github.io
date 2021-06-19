@@ -1,13 +1,13 @@
 # Site settings | 网站设置
-title: RainbomSea
-SEOTitle: RainbomSea的博客 | RaimbomSea
+title: XP哥哥
+SEOTitle: XP哥哥的博客 | XP哥哥
 header-img: img/home-bg-he.png
-email: RainbomSea@qq.com
-description: "RainbomSea的博客"
-keyword: "RainbomSea, RainbomSea的博客, rainbom sea, rainbomsea, Python blog"
-url: "http://RainbomSea.github.io"          # your host, for absolute URL
+email: xiongpeng@hust.edu.cn
+description: "XP哥哥的博客"
+keyword: "XP哥哥, XP哥哥的博客,Python blog"
+url: "http://xpgege.github.io"          # your host, for absolute URL
 baseurl: ""      # for example, '/blog' if your blog hosted on 'host/blog'
-github_repo: "https://github.com/RainbomSea/RainbomSea.github.io.git" #code repository | 代码仓库
+github_repo: "https://github.com/xpgege/xpgege.github.io.git" #code repository | 代码仓库
 
 
 # Sidebar settings | 侧边栏设置
@@ -61,8 +61,8 @@ gitalk:
   clientID: 99ecf1fdc9b7e357ebb7                            #生成的clientID
   clientSecret: 2670daea0c10372dd0296c371edc5ee4e73db43f    #生成的clientSecret
   repo: RainbomSea.github.io    #仓库名称
-  owner: RainbomSea    # github用户名
-  admin: RainbomSea
+  owner: xpgege    # github用户名
+  admin: xpgege
   distractionFreeMode: true # 是否启用类似FB的阴影遮罩
 
 
@@ -88,7 +88,7 @@ service-worker: true
 # Friends
 friends: [
     {
-        title: "GitHub·RainbomSea",
-        href: "http://RainbomSea.github.io"
+        title: "GitHub·xpgege",
+        href: "http://xpgege.github.io"
     }
 ]

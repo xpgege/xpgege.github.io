@@ -1,0 +1,341 @@
+I"�$<h1 id="前言">前言</h1>
+
+<p>前一段时间工作一直是和SQL打交道, 遇到一个sql连接查询问题, 自己疫情在家躺尸，早就把这方面的知识还给学校了，这里就把查到的一些资料以及把自己遇到的问题和解决方法记录一下。</p>
+
+<h2 id="join">Join</h2>
+
+<p>我们知道,<code class="language-plaintext highlighter-rouge">SQL</code>的<code class="language-plaintext highlighter-rouge">Join</code>语法有很多<code class="language-plaintext highlighter-rouge">inner</code>的,有<code class="language-plaintext highlighter-rouge">outer</code>的，有<code class="language-plaintext highlighter-rouge">left</code>的，有时候，对于select出来的结果集是什么样子有点不是很清楚。通过韦恩图(Venn diagram, 可用来表示多个集合之间的逻辑关系)，可以帮我们有效的理解这些。</p>
+
+<p>假设我们有两张表。Table A 是左边的表。Table B 是右边的表。其各有四条记录，其中有两条记录name是相同的，如下所示：让我们看看不同JOIN的不同</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>A表</th>
+      <th> </th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>id</td>
+      <td>name</td>
+    </tr>
+    <tr>
+      <td>1</td>
+      <td>Pirate</td>
+    </tr>
+    <tr>
+      <td>2</td>
+      <td>Monkey</td>
+    </tr>
+    <tr>
+      <td>3</td>
+      <td>Ninja</td>
+    </tr>
+    <tr>
+      <td>4</td>
+      <td>Spaghetti</td>
+    </tr>
+  </tbody>
+</table>
+
+<table>
+  <thead>
+    <tr>
+      <th>B表</th>
+      <th> </th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>id</td>
+      <td>name</td>
+    </tr>
+    <tr>
+      <td>1</td>
+      <td>Rutabaga</td>
+    </tr>
+    <tr>
+      <td>2</td>
+      <td>Pirate</td>
+    </tr>
+    <tr>
+      <td>3</td>
+      <td>Darth Vade</td>
+    </tr>
+    <tr>
+      <td>4</td>
+      <td>Ninja</td>
+    </tr>
+  </tbody>
+</table>
+
+<h3 id="inner-join">INNER JOIN</h3>
+
+<p>INNER JOIN 产生的结果集中，是表A和表B的交集。</p>
+
+<p><img src="https://s1.ax1x.com/2020/09/27/0kRkbq.png" alt="0kRkbq.png" /></p>
+
+<div class="language-sql highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">SELECT</span> <span class="o">*</span> <span class="k">FROM</span> <span class="n">TableA</span> <span class="k">INNER</span> <span class="k">JOIN</span> <span class="n">TableB</span> <span class="k">ON</span> <span class="n">TableA</span><span class="p">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">TableB</span><span class="p">.</span><span class="n">name</span>
+</code></pre></div></div>
+
+<table>
+  <thead>
+    <tr>
+      <th>结果集</th>
+      <th> </th>
+      <th> </th>
+      <th> </th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>(TableA.)</td>
+      <td> </td>
+      <td>(TableB.)</td>
+      <td> </td>
+    </tr>
+    <tr>
+      <td>id</td>
+      <td>name</td>
+      <td>id</td>
+      <td>name</td>
+    </tr>
+    <tr>
+      <td>1</td>
+      <td>Pirate</td>
+      <td>2</td>
+      <td>Pirate</td>
+    </tr>
+    <tr>
+      <td>3</td>
+      <td>Ninja</td>
+      <td>4</td>
+      <td>Ninja</td>
+    </tr>
+  </tbody>
+</table>
+
+<h3 id="full-outer-join">FULL [OUTER] JOIN</h3>
+
+<p>FULL OUTER JOIN 产生表A和表B的并集。对于没有匹配的记录，则会以<code class="language-plaintext highlighter-rouge">Null</code>做为值。</p>
+
+<p><img src="https://s1.ax1x.com/2020/09/27/0kRod0.png" alt="0kRod0.png" /></p>
+
+<div class="language-sql highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">SELECT</span> <span class="o">*</span> <span class="k">FROM</span> <span class="n">TableA</span> <span class="k">FULL</span> <span class="k">OUTER</span> <span class="k">JOIN</span> <span class="n">TableB</span> <span class="k">ON</span> <span class="n">TableA</span><span class="p">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">TableB</span><span class="p">.</span><span class="n">name</span>
+</code></pre></div></div>
+
+<table>
+  <thead>
+    <tr>
+      <th>结果集</th>
+      <th> </th>
+      <th> </th>
+      <th> </th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>(TableA.)</td>
+      <td> </td>
+      <td>(TableB.)</td>
+      <td> </td>
+    </tr>
+    <tr>
+      <td>id</td>
+      <td>name</td>
+      <td>id</td>
+      <td>name</td>
+    </tr>
+    <tr>
+      <td>1</td>
+      <td>Pirate</td>
+      <td>2</td>
+      <td>Pirate</td>
+    </tr>
+    <tr>
+      <td>2</td>
+      <td>Monkey</td>
+      <td>null</td>
+      <td>null</td>
+    </tr>
+    <tr>
+      <td>3</td>
+      <td>Ninja</td>
+      <td>4</td>
+      <td>Ninja</td>
+    </tr>
+    <tr>
+      <td>4</td>
+      <td>Spaghetti</td>
+      <td>Null</td>
+      <td>Null</td>
+    </tr>
+    <tr>
+      <td>Null</td>
+      <td>Null</td>
+      <td>1</td>
+      <td>Rutabaga</td>
+    </tr>
+    <tr>
+      <td>Null</td>
+      <td>Null</td>
+      <td>3</td>
+      <td>Darth Vade</td>
+    </tr>
+  </tbody>
+</table>
+
+<h3 id="left-outer-join">LEFT [OUTER] JOIN</h3>
+
+<p>LEFT OUTER JOIN 产生表A的完全集，B表中没有匹配的则以null值取代。</p>
+
+<p><img src="https://s1.ax1x.com/2020/09/27/0kbWqS.png" alt="0kbWqS.png" /></p>
+
+<div class="language-sql highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">SELECT</span> <span class="o">*</span> <span class="k">FROM</span> <span class="n">TableA</span> <span class="k">LEFT</span> <span class="k">OUTER</span> <span class="k">JOIN</span> <span class="n">TableB</span> <span class="k">ON</span> <span class="n">TableA</span><span class="p">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">TableB</span><span class="p">.</span><span class="n">name</span>
+</code></pre></div></div>
+
+<table>
+  <thead>
+    <tr>
+      <th>结果集</th>
+      <th> </th>
+      <th> </th>
+      <th> </th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>(TableA.)</td>
+      <td> </td>
+      <td>(TableB.)</td>
+      <td> </td>
+    </tr>
+    <tr>
+      <td>id</td>
+      <td>name</td>
+      <td>id</td>
+      <td>name</td>
+    </tr>
+    <tr>
+      <td>1</td>
+      <td>Pirate</td>
+      <td>2</td>
+      <td>Pirate</td>
+    </tr>
+    <tr>
+      <td>2</td>
+      <td>Monkey</td>
+      <td>null</td>
+      <td>null</td>
+    </tr>
+    <tr>
+      <td>3</td>
+      <td>Ninja</td>
+      <td>4</td>
+      <td>Ninja</td>
+    </tr>
+    <tr>
+      <td>4</td>
+      <td>Spaghetti</td>
+      <td>Null</td>
+      <td>Null</td>
+    </tr>
+  </tbody>
+</table>
+
+<h3 id="right-outer-join">RIGHT [OUTER] JOIN</h3>
+
+<p>RIGHT OUTER JOIN 是后面的表为基础，与LEFT OUTER JOIN用法类似。产生表B的完全集，A表中没有匹配的则以null值取代。</p>
+
+<h3 id="union-与-union-all">UNION 与 UNION ALL</h3>
+
+<p>UNION 操作符用于合并两个或多个 SELECT 语句的结果集。</p>
+
+<p>UNION 内部的 SELECT 语句必须拥有相同数量的列。列也必须拥有相似的数据类型。每条 SELECT 语句中的列的顺序必须相同。</p>
+
+<p>UNION ALL是直接连接，取到得是所有值，记录可能有重复 UNION 是取唯一值，记录没有重复</p>
+
+<p>UNION将会按照字段的顺序进行排序; UNION ALL只是简单的将两个结果合并后就返回。</p>
+
+<div class="language-sql highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">SELECT</span> <span class="n">name</span> <span class="k">FROM</span> <span class="n">TableA</span> <span class="k">UNION</span> <span class="k">SELECT</span> <span class="n">name</span> <span class="k">FROM</span> <span class="n">TableB</span>
+</code></pre></div></div>
+
+<table>
+  <thead>
+    <tr>
+      <th>结果集</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>name</td>
+    </tr>
+    <tr>
+      <td>Pirate</td>
+    </tr>
+    <tr>
+      <td>Monkey</td>
+    </tr>
+    <tr>
+      <td>Ninja</td>
+    </tr>
+    <tr>
+      <td>Spaghetti</td>
+    </tr>
+    <tr>
+      <td>Rutabaga</td>
+    </tr>
+    <tr>
+      <td>Darth Vade</td>
+    </tr>
+  </tbody>
+</table>
+
+<div class="language-sql highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">SELECT</span> <span class="n">name</span> <span class="k">FROM</span> <span class="n">TableA</span> <span class="k">UNION</span> <span class="k">ALL</span> <span class="k">SELECT</span> <span class="n">name</span> <span class="k">FROM</span> <span class="n">TableB</span>
+</code></pre></div></div>
+
+<table>
+  <thead>
+    <tr>
+      <th>结果集</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>name</td>
+    </tr>
+    <tr>
+      <td>Pirate</td>
+    </tr>
+    <tr>
+      <td>Monkey</td>
+    </tr>
+    <tr>
+      <td>Ninja</td>
+    </tr>
+    <tr>
+      <td>Spaghetti</td>
+    </tr>
+    <tr>
+      <td>Rutabaga</td>
+    </tr>
+    <tr>
+      <td>Pirate</td>
+    </tr>
+    <tr>
+      <td>Darth Vade</td>
+    </tr>
+    <tr>
+      <td>Ninja</td>
+    </tr>
+  </tbody>
+</table>
+
+<h2 id="使用join遇到的问题及解决方法">使用Join遇到的问题及解决方法</h2>
+
+<h2 id="参考博文">参考博文</h2>
+
+<p><a href="https://justcode.ikeepstudying.com/2016/08/mysql-%E5%9B%BE%E8%A7%A3-inner-join%E3%80%81left-join%E3%80%81right-join%E3%80%81full-outer-join%E3%80%81union%E3%80%81union-all%E7%9A%84%E5%8C%BA%E5%88%AB/">Mysql: 图解 inner join、left join、right join、full outer join、union、union all的区别</a> 本文使用到的图片、Sql、以及一些内容都出自这里</p>
+
+:ET
