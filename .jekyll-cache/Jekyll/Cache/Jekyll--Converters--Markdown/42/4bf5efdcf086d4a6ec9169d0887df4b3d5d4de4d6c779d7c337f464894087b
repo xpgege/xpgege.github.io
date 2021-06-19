@@ -1,0 +1,1019 @@
+I"�m<h1 id="合并孟加拉和马拉维数据分析">合并孟加拉和马拉维数据分析</h1>
+
+<h2 id="合并数据">合并数据</h2>
+
+<p>将孟加拉和马拉维的所有数据进行合并，统一分析。首先创建所有健康样本的<code class="language-plaintext highlighter-rouge">manifest</code>数据。然后导入到QIIME2中。文件分析路径位于<code class="language-plaintext highlighter-rouge">Storage3/Micro-Develop/ref7_13</code>下</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># 激活环境</span>
+<span class="nb">export </span><span class="nv">LC_ALL</span><span class="o">=</span>en_US.utf-8
+<span class="nb">export </span><span class="nv">LANG</span><span class="o">=</span>en_US.utf-8
+conda activate qiime2-2020.2
+
+<span class="c"># 将双端测序数据输入</span>
+qiime tools import <span class="nt">--type</span> <span class="s1">'SampleData[PairedEndSequencesWithQuality]'</span> <span class="se">\</span>
+<span class="nt">--input-path</span> Healthy_cohort_manifest.txt <span class="nt">--output-path</span> pe_sequence.qza <span class="se">\</span>
+<span class="nt">--input-format</span> PairedEndFastqManifestPhred33V2
+
+qiime vsearch join-pairs <span class="se">\</span>
+  <span class="nt">--i-demultiplexed-seqs</span> pe_sequence.qza <span class="se">\</span>
+  <span class="nt">--o-joined-sequences</span> pe-joined.qza
+  
+<span class="c"># 获取数据的质量图像</span>
+qiime demux summarize <span class="nt">--i-data</span> pe-joined.qza <span class="se">\</span>
+<span class="nt">--o-visualization</span> pe_sequence.qzv
+</code></pre></div></div>
+
+<h3 id="数据质控">数据质控</h3>
+
+<p>合并后的数据的质量如图所示</p>
+
+<p><img src="https://hugo-blog-1256988836.cos.ap-chengdu.myqcloud.com/16S/Micor-develop/ref7_13/combined_reads_quality.png" alt="" /></p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>qiime quality-filter q-score-joined <span class="se">\</span>
+  <span class="nt">--i-demux</span> pe-joined.qza <span class="se">\</span>
+  <span class="nt">--p-min-quality</span> 20 <span class="se">\</span>
+  <span class="nt">--o-filtered-sequences</span> demux-joined-filtered.qza <span class="se">\</span>
+  <span class="nt">--o-filter-stats</span> demux-joined-filter-stats.qza
+  
+qiime deblur denoise-16S <span class="se">\</span>
+  <span class="nt">--i-demultiplexed-seqs</span> demux-joined-filtered.qza <span class="se">\</span>
+  <span class="nt">--p-trim-length</span> 220 <span class="se">\</span>
+  <span class="nt">--p-sample-stats</span> <span class="se">\</span>
+  <span class="nt">--o-representative-sequences</span> rep-seqs.qza <span class="se">\</span>
+  <span class="nt">--o-table</span> table.qza <span class="se">\</span>
+  <span class="nt">--o-stats</span> deblur-stats.qza
+  
+qiime feature-table summarize <span class="se">\</span>
+  <span class="nt">--i-table</span> table.qza <span class="se">\</span>
+  <span class="nt">--o-visualization</span> table.qzv
+</code></pre></div></div>
+
+<table>
+  <thead>
+    <tr>
+      <th style="text-align: left">Metric</th>
+      <th style="text-align: left">Sample</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style="text-align: left">Number of samples</td>
+      <td style="text-align: left">1,262</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">Number of features</td>
+      <td style="text-align: left">3,546</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">Total frequency</td>
+      <td style="text-align: left">22,182,088</td>
+    </tr>
+  </tbody>
+</table>
+
+<h3 id="frequency-per-sample">Frequency per sample</h3>
+
+<table>
+  <thead>
+    <tr>
+      <th style="text-align: left"> </th>
+      <th style="text-align: center">Frequency</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style="text-align: left">Minimum frequency</td>
+      <td style="text-align: center">360.0</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">1st quartile</td>
+      <td style="text-align: center">7,507.0</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">Median frequency</td>
+      <td style="text-align: center">12,222.0</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">3rd quartile</td>
+      <td style="text-align: center">18,097.0</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">Maximum frequency</td>
+      <td style="text-align: center">561,071.0</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">Mean frequency</td>
+      <td style="text-align: center">17,576.931854199684</td>
+    </tr>
+  </tbody>
+</table>
+
+<h3 id="稀释">稀释</h3>
+
+<p>以3000为标准进行稀释。</p>
+
+<p><img src="https://hugo-blog-1256988836.cos.ap-chengdu.myqcloud.com/16S/Micor-develop/ref7_13/%E7%A8%80%E9%87%8A%E6%9B%B2%E7%BA%BF.png" alt="" /></p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c">## 进化树</span>
+qiime phylogeny align-to-tree-mafft-fasttree <span class="se">\</span>
+  <span class="nt">--i-sequences</span> rep-seqs.qza <span class="se">\</span>
+  <span class="nt">--o-alignment</span> aligned-rep-seqs.qza <span class="se">\</span>
+  <span class="nt">--o-masked-alignment</span> masked-aligned-rep-seqs.qza <span class="se">\</span>
+  <span class="nt">--o-tree</span> unrooted-tree.qza <span class="se">\</span>
+  <span class="nt">--o-rooted-tree</span> rooted-tree.qza
+
+qiime diversity alpha-rarefaction <span class="se">\</span>
+  <span class="nt">--i-table</span> table.qza <span class="se">\</span>
+  <span class="nt">--i-phylogeny</span> rooted-tree.qza <span class="se">\</span>
+  <span class="nt">--p-max-depth</span> 3000 <span class="se">\</span>
+  <span class="nt">--m-metadata-file</span> metadata.txt <span class="se">\</span>
+  <span class="nt">--o-visualization</span> alpha-rarefaction.qzv
+  
+<span class="c"># 稀释</span>
+qiime diversity core-metrics-phylogenetic <span class="se">\</span>
+  <span class="nt">--i-phylogeny</span> rooted-tree.qza <span class="se">\</span>
+  <span class="nt">--i-table</span> table.qza  <span class="se">\</span>
+  <span class="nt">--p-sampling-depth</span> 3000 <span class="se">\</span>
+  <span class="nt">--m-metadata-file</span> metadata.txt <span class="se">\</span>
+  <span class="nt">--output-dir</span> core-metrics
+  
+<span class="c"># ASV taxa assign</span>
+qiime feature-classifier classify-sklearn <span class="se">\</span>
+    <span class="nt">--i-classifier</span> ../ref_7/gg-13-8-99-nb-classifier.qza <span class="se">\</span>
+    <span class="nt">--i-reads</span> rep-seqs.qza <span class="se">\</span>
+    <span class="nt">--o-classification</span> taxonomy.qza
+    
+ qiime metadata tabulate <span class="se">\</span>
+    <span class="nt">--m-input-file</span> taxonomy.qza <span class="se">\</span>
+    <span class="nt">--o-visualization</span> taxonomy.qzv
+    
+ <span class="c"># collaspe taxa abundance</span>
+ qiime taxa barplot <span class="se">\</span>
+  <span class="nt">--i-table</span> core-metrics/rarefied_table.qza <span class="se">\</span>
+  <span class="nt">--i-taxonomy</span> taxonomy.qza <span class="se">\</span>
+  <span class="nt">--m-metadata-file</span> metadata.txt <span class="se">\</span>
+  <span class="nt">--o-visualization</span> rarefied_taxa-bar-plots.qzv
+  
+<span class="c"># ASV abundance</span>
+<span class="nb">mkdir</span> <span class="nt">-p</span> ASV<span class="p">;</span> <span class="nb">cd </span>ASV
+<span class="nb">cp</span> ../core-metrics/rarefied_table.qza rarefied_table.zip
+unzip rarefied_table.zip<span class="p">;</span>  <span class="c"># 需要对解压下的文件夹重命名，比如命名为rarefied_table</span>
+<span class="nb">cd </span>rarefied_table/data<span class="p">;</span>
+biom convert <span class="nt">-i</span> feature-table.biom <span class="nt">-o</span> asv_table.txt <span class="nt">--to-tsv</span>
+</code></pre></div></div>
+
+<h2 id="qiime2分析">QIIME2分析</h2>
+
+<h3 id="年龄和alpha多样性"><em>年龄和alpha多样性</em></h3>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>qiime diversity alpha-correlation <span class="se">\</span>
+    <span class="nt">--m-metadata-file</span> metadata.txt <span class="se">\</span>
+    <span class="nt">--i-alpha-diversity</span> core-metrics/observed_otus_vector.qza <span class="se">\</span>
+    <span class="nt">--o-visualization</span>  core-metrics/observed_otus_correlation.qzv
+</code></pre></div></div>
+
+<p><img src="https://hugo-blog-1256988836.cos.ap-chengdu.myqcloud.com/16S/Micor-develop/ref7_13/alpha-correlation.svg" alt="" /></p>
+
+<table>
+  <thead>
+    <tr>
+      <th style="text-align: left">Test</th>
+      <th style="text-align: left">Spearman</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style="text-align: left"><strong>Test statistic</strong></td>
+      <td style="text-align: left">0.6847</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><strong>P-value</strong></td>
+      <td style="text-align: left">0.0000</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><strong>Sample size</strong></td>
+      <td style="text-align: left">1161</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>整体而言，随着年龄的逐步提升，观测到的微生物多样性也是逐步上升的。</p>
+
+<h3 id="奇怪的pcoa图">奇怪的PCoA图</h3>
+
+<blockquote>
+  <p>jaccard pcoa</p>
+</blockquote>
+
+<p><img src="https://hugo-blog-1256988836.cos.ap-chengdu.myqcloud.com/16S/Micor-develop/ref7_13/emperor-jaccard.svg" alt="" /></p>
+
+<blockquote>
+  <p>unweighted unifrac</p>
+</blockquote>
+
+<p><img src="https://hugo-blog-1256988836.cos.ap-chengdu.myqcloud.com/16S/Micor-develop/ref7_13/emperor-unweight-unifrac.svg" alt="" /></p>
+
+<p>上图中，红色是孟加拉数据，而橙色为其文中提到的验证马拉维数据。蓝色为马拉维数据。数据分成了两个接近平行的月牙，呈现出较为奇怪的特征。</p>
+
+<h2 id="随机森林模型">随机森林模型</h2>
+
+<div class="language-r highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">rm</span><span class="p">(</span><span class="n">list</span><span class="o">=</span><span class="n">ls</span><span class="p">())</span><span class="w">
+</span><span class="n">library</span><span class="p">(</span><span class="n">randomForest</span><span class="p">)</span><span class="w">
+</span><span class="n">library</span><span class="p">(</span><span class="n">ggplot2</span><span class="p">)</span><span class="w">
+</span><span class="n">library</span><span class="p">(</span><span class="n">dplyr</span><span class="p">)</span><span class="w">
+
+</span><span class="n">abundance</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">read.table</span><span class="p">(</span><span class="s2">"asv_table.txt"</span><span class="p">,</span><span class="n">header</span><span class="o">=</span><span class="nb">T</span><span class="p">,</span><span class="n">sep</span><span class="o">=</span><span class="s2">"\t"</span><span class="p">,</span><span class="n">check.names</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">F</span><span class="p">,</span><span class="n">row.names</span><span class="o">=</span><span class="m">1</span><span class="p">)</span><span class="w">
+</span><span class="n">relative_abundance</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">abundance</span><span class="o">/</span><span class="m">3000</span><span class="o">*</span><span class="m">100</span><span class="w">
+</span><span class="n">count</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="k">function</span><span class="p">(</span><span class="n">abun</span><span class="p">){</span><span class="w">
+     </span><span class="n">num</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="nf">sum</span><span class="p">(</span><span class="n">abun</span><span class="o">&gt;</span><span class="m">0.1</span><span class="p">)</span><span class="w">
+     </span><span class="nf">return</span><span class="p">(</span><span class="n">num</span><span class="p">)</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span><span class="n">filter_count</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">apply</span><span class="p">(</span><span class="n">relative_abundance</span><span class="p">,</span><span class="m">1</span><span class="p">,</span><span class="n">count</span><span class="p">)</span><span class="w">
+ 
+</span><span class="n">index</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">which</span><span class="p">(</span><span class="n">filter_count</span><span class="o">&gt;</span><span class="m">8</span><span class="p">)</span><span class="w"> 
+</span><span class="n">filter_abundance</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">relative_abundance</span><span class="p">[</span><span class="n">index</span><span class="p">,]</span><span class="w">
+</span><span class="n">metadata</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">read.table</span><span class="p">(</span><span class="s2">"metadata.txt"</span><span class="p">,</span><span class="n">header</span><span class="o">=</span><span class="nb">T</span><span class="p">,</span><span class="n">sep</span><span class="o">=</span><span class="s2">"\t"</span><span class="p">)</span><span class="w">
+</span><span class="n">otu</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">data.frame</span><span class="p">(</span><span class="n">t</span><span class="p">(</span><span class="n">filter_abundance</span><span class="p">))</span><span class="w">
+</span><span class="n">otu</span><span class="o">$</span><span class="n">Age</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">metadata</span><span class="p">[</span><span class="n">rownames</span><span class="p">(</span><span class="n">otu</span><span class="p">),]</span><span class="o">$</span><span class="n">Age</span><span class="w">
+
+</span><span class="c1"># train and valid samples</span><span class="w">
+</span><span class="n">train_index</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">sample</span><span class="p">(</span><span class="n">rownames</span><span class="p">(</span><span class="n">otu</span><span class="p">),</span><span class="n">nrow</span><span class="p">(</span><span class="n">otu</span><span class="p">)</span><span class="o">*</span><span class="m">0.7</span><span class="p">)</span><span class="w">
+</span><span class="n">valid_index</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">setdiff</span><span class="p">(</span><span class="n">rownames</span><span class="p">(</span><span class="n">otu</span><span class="p">),</span><span class="n">train_index</span><span class="p">)</span><span class="w"> 
+</span><span class="n">train_sample</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">otu</span><span class="p">[</span><span class="n">train_index</span><span class="p">,]</span><span class="w">
+</span><span class="n">valid_sample</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">otu</span><span class="p">[</span><span class="n">valid_index</span><span class="p">,]</span><span class="w">
+
+</span><span class="c1">## 选择年龄区间为1-18月</span><span class="w">
+</span><span class="c1">#train_sample &lt;- train_sample[which(train_sample$Age&lt;18),]</span><span class="w">
+</span><span class="c1">#valid_sample &lt;- valid_sample[which(valid_sample$Age&lt;18),]</span><span class="w">
+
+</span><span class="c1"># RF Glimpse</span><span class="w">
+</span><span class="n">set.seed</span><span class="p">(</span><span class="m">123</span><span class="p">)</span><span class="w">  </span><span class="c1"># 创建随机种子，从而使得结果可重复</span><span class="w">
+</span><span class="n">otu_train.forest</span><span class="o">&lt;-</span><span class="w"> </span><span class="n">randomForest</span><span class="p">(</span><span class="n">Age</span><span class="o">~</span><span class="n">.</span><span class="p">,</span><span class="w"> </span><span class="n">data</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">train_sample</span><span class="p">,</span><span class="w"> </span><span class="n">importance</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">TRUE</span><span class="p">)</span><span class="w"> </span><span class="c1">## 开始训练</span><span class="w">
+</span><span class="n">otu_train.forest</span><span class="w">
+</span></code></pre></div></div>
+
+<blockquote>
+  <p>Call:
+randomForest(formula = Age ~ ., data = train_sample, importance = TRUE) 
+              Type of random forest: regression
+                    Number of trees: 500
+No. of variables tried at each split: 179</p>
+
+  <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>     Mean of squared residuals: 14.92069
+               % Var explained: 72.48
+</code></pre></div>  </div>
+</blockquote>
+
+<div class="language-r highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">importance_otu</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">data.frame</span><span class="p">(</span><span class="n">otu_train.forest</span><span class="o">$</span><span class="n">importance</span><span class="p">)</span><span class="w">
+</span><span class="n">varImpPlot</span><span class="p">(</span><span class="n">otu_train.forest</span><span class="p">,</span><span class="w"> </span><span class="n">n.var</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nf">min</span><span class="p">(</span><span class="m">30</span><span class="p">,</span><span class="w"> </span><span class="n">nrow</span><span class="p">(</span><span class="n">otu_train.forest</span><span class="o">$</span><span class="n">importance</span><span class="p">)),</span><span class="w">
+</span><span class="n">main</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'Top 30 - variable importance'</span><span class="p">)</span><span class="w">
+</span></code></pre></div></div>
+
+<p><img src="https://hugo-blog-1256988836.cos.ap-chengdu.myqcloud.com/16S/Micor-develop/ref7_13/variable_importance.png" alt="" /></p>
+
+<div class="language-R highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">importance_otu</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">importance_otu</span><span class="p">[</span><span class="n">order</span><span class="p">(</span><span class="n">importance_otu</span><span class="o">$</span><span class="n">IncNodePurity</span><span class="p">,</span><span class="w"> </span><span class="n">decreasing</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">TRUE</span><span class="p">),</span><span class="w"> </span><span class="p">]</span><span class="w">
+</span><span class="n">write.table</span><span class="p">(</span><span class="n">importance_otu</span><span class="p">,</span><span class="w"> </span><span class="s1">'importance_otu.txt'</span><span class="p">,</span><span class="w"> </span><span class="n">sep</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'\t'</span><span class="p">,</span><span class="w"> </span><span class="n">col.names</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">NA</span><span class="p">,</span><span class="w"> </span><span class="n">quote</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">FALSE</span><span class="p">)</span><span class="w">
+
+</span><span class="n">otu_train</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">train_sample</span><span class="w">
+</span><span class="n">otu_train.cv</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">replicate</span><span class="p">(</span><span class="m">5</span><span class="p">,</span><span class="w"> </span><span class="n">rfcv</span><span class="p">(</span><span class="n">otu_train</span><span class="p">[</span><span class="o">-</span><span class="n">ncol</span><span class="p">(</span><span class="n">otu_train</span><span class="p">)],</span><span class="w"> </span><span class="n">otu_train</span><span class="o">$</span><span class="n">Age</span><span class="p">,</span><span class="w"> </span><span class="n">cv.fold</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="m">10</span><span class="p">,</span><span class="w"> </span><span class="n">step</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="m">1.5</span><span class="p">),</span><span class="w"> </span><span class="n">simplify</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">FALSE</span><span class="p">)</span><span class="w">
+</span><span class="n">otu_train.cv</span><span class="w">
+</span><span class="n">otu_train.cv</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">data.frame</span><span class="p">(</span><span class="n">sapply</span><span class="p">(</span><span class="n">otu_train.cv</span><span class="p">,</span><span class="w"> </span><span class="s1">'[['</span><span class="p">,</span><span class="w"> </span><span class="s1">'error.cv'</span><span class="p">))</span><span class="w">
+</span><span class="n">otu_train.cv</span><span class="o">$</span><span class="n">otus</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">rownames</span><span class="p">(</span><span class="n">otu_train.cv</span><span class="p">)</span><span class="w">
+</span><span class="n">otu_train.cv</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">reshape2</span><span class="o">::</span><span class="n">melt</span><span class="p">(</span><span class="n">otu_train.cv</span><span class="p">,</span><span class="w"> </span><span class="n">id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'otus'</span><span class="p">)</span><span class="w">
+</span><span class="n">otu_train.cv</span><span class="o">$</span><span class="n">otus</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="nf">as.numeric</span><span class="p">(</span><span class="nf">as.character</span><span class="p">(</span><span class="n">otu_train.cv</span><span class="o">$</span><span class="n">otus</span><span class="p">))</span><span class="w">
+</span><span class="n">otu_train.cv.mean</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">aggregate</span><span class="p">(</span><span class="n">otu_train.cv</span><span class="o">$</span><span class="n">value</span><span class="p">,</span><span class="w"> </span><span class="n">by</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nf">list</span><span class="p">(</span><span class="n">otu_train.cv</span><span class="o">$</span><span class="n">otus</span><span class="p">),</span><span class="w"> </span><span class="n">FUN</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">mean</span><span class="p">)</span><span class="w">
+</span><span class="n">ggplot</span><span class="p">(</span><span class="n">otu_train.cv.mean</span><span class="p">,</span><span class="w"> </span><span class="n">aes</span><span class="p">(</span><span class="n">Group.1</span><span class="p">,</span><span class="w"> </span><span class="n">x</span><span class="p">))</span><span class="w"> </span><span class="o">+</span><span class="w">
+	</span><span class="n">geom_line</span><span class="p">()</span><span class="w"> </span><span class="o">+</span><span class="w">
+	</span><span class="n">theme</span><span class="p">(</span><span class="n">panel.grid</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">element_blank</span><span class="p">(),</span><span class="w"> </span><span class="n">panel.background</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">element_rect</span><span class="p">(</span><span class="n">color</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'black'</span><span class="p">,</span><span class="w"> </span><span class="n">fill</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'transparent'</span><span class="p">))</span><span class="w"> </span><span class="o">+</span><span class="w">
+	</span><span class="n">labs</span><span class="p">(</span><span class="n">title</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">''</span><span class="p">,</span><span class="n">x</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'Number of OTUs'</span><span class="p">,</span><span class="w"> </span><span class="n">y</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'Cross-validation error'</span><span class="p">)</span><span class="w">
+</span><span class="n">head</span><span class="p">(</span><span class="n">otu_train.cv.mean</span><span class="p">,</span><span class="w"> </span><span class="m">20</span><span class="p">)</span><span class="w">
+</span></code></pre></div></div>
+
+<blockquote>
+  <p>Group.1        x<br />
+  1        1 45.04694<br />
+  2        2 35.18462<br />
+  3        3 28.71272<br />
+  4        4 25.08448<br />
+  5        6 21.38917<br />
+  6        9 18.89489<br />
+  7       14 17.99712<br />
+  8       21 17.23732<br />
+  9       31 16.97913<br />
+  10      47 16.47820<br />
+  11      71 15.81818<br />
+  12     106 15.55566<br />
+  13     159 15.45693<br />
+  14     239 15.39939<br />
+  15     358 15.45632<br />
+  16     537 15.55963</p>
+</blockquote>
+
+<p>21 is good.</p>
+
+<h3 id="21个变量的简约回归">21个变量的简约回归</h3>
+
+<div class="language-R highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">importance_otu.select</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">importance_otu</span><span class="p">[</span><span class="m">1</span><span class="o">:</span><span class="m">21</span><span class="p">,</span><span class="w"> </span><span class="p">]</span><span class="w">
+</span><span class="n">otu_id.select</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">rownames</span><span class="p">(</span><span class="n">importance_otu.select</span><span class="p">)</span><span class="w">
+</span><span class="n">write.table</span><span class="p">(</span><span class="n">importance_otu.select</span><span class="p">,</span><span class="w"> </span><span class="s1">'importance_otu.select.txt'</span><span class="p">,</span><span class="w"> </span><span class="n">sep</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'\t'</span><span class="p">,</span><span class="w"> </span><span class="n">col.names</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">NA</span><span class="p">,</span><span class="w"> </span><span class="n">quote</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">FALSE</span><span class="p">)</span><span class="w">
+</span><span class="c1">##只包含21个重要预测变量的简约回归</span><span class="w">
+</span><span class="n">otu_train.select</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">train_sample</span><span class="p">[,</span><span class="nf">c</span><span class="p">(</span><span class="n">otu_id.select</span><span class="p">,</span><span class="s2">"Age"</span><span class="p">)]</span><span class="w">
+</span><span class="n">otu_test.select</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">valid_sample</span><span class="p">[,</span><span class="nf">c</span><span class="p">(</span><span class="n">otu_id.select</span><span class="p">,</span><span class="s2">"Age"</span><span class="p">)]</span><span class="w">
+
+</span><span class="c1">#随机森林计算（默认生成 500 棵决策树），详情 ?randomForest</span><span class="w">
+</span><span class="n">set.seed</span><span class="p">(</span><span class="m">123</span><span class="p">)</span><span class="w">
+</span><span class="n">otu_train.select.forest</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">randomForest</span><span class="p">(</span><span class="n">Age</span><span class="o">~</span><span class="n">.</span><span class="p">,</span><span class="w"> </span><span class="n">data</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">otu_train.select</span><span class="p">,</span><span class="w"> </span><span class="n">importance</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">TRUE</span><span class="p">)</span><span class="w">
+</span></code></pre></div></div>
+
+<blockquote>
+  <p>otu_train.select.forest</p>
+</blockquote>
+
+<blockquote>
+  <p>Call:
+ randomForest(formula = Age ~ ., data = otu_train.select, importance = TRUE) 
+               Type of random forest: regression
+                     Number of trees: 500
+No. of variables tried at each split: 7</p>
+
+  <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>      Mean of squared residuals: 16.86074
+                % Var explained: 68.9
+</code></pre></div>  </div>
+</blockquote>
+
+<div class="language-R highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">names</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">rownames</span><span class="p">(</span><span class="n">otu_test.select</span><span class="p">)</span><span class="w">
+</span><span class="n">age_predict</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">predict</span><span class="p">(</span><span class="n">otu_train.select.forest</span><span class="p">,</span><span class="w"> </span><span class="n">otu_test.select</span><span class="p">)</span><span class="w">
+</span><span class="n">plot</span><span class="p">(</span><span class="n">otu_test.select</span><span class="o">$</span><span class="n">Age</span><span class="p">,</span><span class="w"> </span><span class="n">age_predict</span><span class="p">,</span><span class="w"> </span><span class="n">main</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'Test'</span><span class="p">,</span><span class="n">xlab</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'age (Months)'</span><span class="p">,</span><span class="w"> </span><span class="n">ylab</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'Predict'</span><span class="p">)</span><span class="w">
+</span><span class="n">abline</span><span class="p">(</span><span class="m">1</span><span class="p">,</span><span class="w"> </span><span class="m">1</span><span class="p">)</span><span class="w">
+</span></code></pre></div></div>
+
+<p><img src="https://hugo-blog-1256988836.cos.ap-chengdu.myqcloud.com/16S/Micor-develop/ref7_13/predict.png" alt="" /></p>
+
+<div class="language-R highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">Test_data</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">data.frame</span><span class="p">(</span><span class="n">otu_test.select</span><span class="o">$</span><span class="n">Age</span><span class="p">,</span><span class="w"> </span><span class="n">age_predict</span><span class="p">)</span><span class="w">
+</span><span class="n">Test_Fit</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">lm</span><span class="p">(</span><span class="n">age_predict</span><span class="o">~</span><span class="n">otu_test.select.Age</span><span class="p">,</span><span class="n">data</span><span class="o">=</span><span class="n">Test_data</span><span class="p">)</span><span class="w">
+</span><span class="n">summary</span><span class="p">(</span><span class="n">Test_Fit</span><span class="p">)</span><span class="w">
+</span></code></pre></div></div>
+
+<blockquote>
+  <p>Call:<br />
+lm(formula = age_predict ~ otu_test.select.Age, data = Test_data)</p>
+
+  <p>Residuals:<br />
+    Min       1Q   Median       3Q      Max <br />
+-10.4187  -1.9778   0.0438   1.8712   9.3173</p>
+
+  <p>Coefficients:<br />
+                   Estimate Std. Error t value Pr(&gt;|t|)  <br />
+(Intercept)          3.66695    0.29330   12.50   &lt;2e-16 ***</p>
+
+  <p>otu_test.select.Age  0.71086    0.02236   31.79   &lt;2e-16 ***</p>
+
+  <p>Signif. codes:  0 ‘<em><strong>’ 0.001 ‘</strong>’ 0.01 ‘</em>’ 0.05 ‘.’ 0.1 ‘ ’ 1</p>
+
+  <p>Residual standard error: 2.928 on 347 degrees of freedom<br />
+Multiple R-squared:  0.7444,	Adjusted R-squared:  0.7437 <br />
+F-statistic:  1011 on 1 and 347 DF,  p-value: &lt; 2.2e-16</p>
+</blockquote>
+
+<h3 id="物种分析">物种分析</h3>
+
+<div class="language-R highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">ASV_taxa</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">read.table</span><span class="p">(</span><span class="s2">"taxonomy.txt"</span><span class="p">,</span><span class="n">header</span><span class="o">=</span><span class="nb">T</span><span class="p">,</span><span class="n">sep</span><span class="o">=</span><span class="s2">"\t"</span><span class="p">,</span><span class="n">check.names</span><span class="o">=</span><span class="nb">F</span><span class="p">)</span><span class="w">
+</span><span class="n">select</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">read.table</span><span class="p">(</span><span class="s2">"importance_otu.select.txt"</span><span class="p">,</span><span class="n">header</span><span class="o">=</span><span class="nb">T</span><span class="p">,</span><span class="n">sep</span><span class="o">=</span><span class="s2">"\t"</span><span class="p">,</span><span class="n">check.names</span><span class="o">=</span><span class="nb">F</span><span class="p">)</span><span class="w">
+</span><span class="n">result</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">inner_join</span><span class="p">(</span><span class="n">ASV_taxa</span><span class="p">,</span><span class="n">select</span><span class="p">,</span><span class="n">by</span><span class="o">=</span><span class="s2">"ASV"</span><span class="p">)</span><span class="w">
+</span><span class="n">result</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">result</span><span class="p">[</span><span class="n">order</span><span class="p">(</span><span class="n">result</span><span class="o">$</span><span class="n">IncNodePurity</span><span class="p">,</span><span class="w"> </span><span class="n">decreasing</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">TRUE</span><span class="p">),</span><span class="w"> </span><span class="p">]</span><span class="w">
+</span><span class="n">write.table</span><span class="p">(</span><span class="n">result</span><span class="p">,</span><span class="s2">"Select_asv_taxa.txt"</span><span class="p">,</span><span class="n">quote</span><span class="o">=</span><span class="nb">F</span><span class="p">,</span><span class="n">sep</span><span class="o">=</span><span class="s2">"\t"</span><span class="p">,</span><span class="n">row.names</span><span class="o">=</span><span class="nb">F</span><span class="p">)</span><span class="w">
+</span></code></pre></div></div>
+
+<table>
+  <thead>
+    <tr>
+      <th>ASV</th>
+      <th>Taxon</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>f118662f3e5f209f582ffbaf39e21807</td>
+      <td>Bacteria; Firmicutes; Clostridia; Clostridiales; Lachnospiraceae;  Blautia; s__</td>
+    </tr>
+    <tr>
+      <td>c7dad10896f6c10619ec4d963d5a0d4c</td>
+      <td>Bacteria; Firmicutes; Clostridia; Clostridiales; Lachnospiraceae; Dorea;  s__longicatena</td>
+    </tr>
+    <tr>
+      <td>c3ae999022b2b3dba38bf8d4e08242c1</td>
+      <td>Bacteria; Firmicutes; Clostridia; Clostridiales; Lachnospiraceae; Dorea;  s__formicigenerans</td>
+    </tr>
+    <tr>
+      <td>ed8930aed9ccc63f5b22fd4229ef3361</td>
+      <td>Bacteria; Firmicutes; Clostridia; Clostridiales; Ruminococcaceae;  Gemmiger; s__formicilis</td>
+    </tr>
+    <tr>
+      <td>6c38c23dde65be3184382ccaafdbc7aa</td>
+      <td>Bacteria; Firmicutes; Bacilli; Bacillales; Staphylococcaceae;  Staphylococcus</td>
+    </tr>
+    <tr>
+      <td>b99a5879168a9d117fdffb707e1f682c</td>
+      <td>Bacteria; Firmicutes; Clostridia; Clostridiales; Lachnospiraceae;  Blautia; s__</td>
+    </tr>
+    <tr>
+      <td>2792f7e5c84a91ba5a549be947465cb6</td>
+      <td>Bacteria; Actinobacteria; Actinobacteria; Bifidobacteriales;  Bifidobacteriaceae; Bifidobacterium</td>
+    </tr>
+    <tr>
+      <td>f00219cfb5ea9d13f4be1e63c6822722</td>
+      <td>Bacteria; Firmicutes; Clostridia; Clostridiales; Ruminococcaceae;  Faecalibacterium; s__prausnitzii</td>
+    </tr>
+    <tr>
+      <td>7be3fed5631db826c499e1f0f3d5bff1</td>
+      <td>Bacteria; Firmicutes; Clostridia; Clostridiales; Lachnospiraceae;  Roseburia; s__faecis</td>
+    </tr>
+    <tr>
+      <td>2ea082fe7de3327a025e61006313746b</td>
+      <td>Bacteria; Proteobacteria; Gammaproteobacteria; Pasteurellales;  Pasteurellaceae; Haemophilus; s__parainfluenzae</td>
+    </tr>
+    <tr>
+      <td>c60a6281dea0f58a0154c2efcdb19cff</td>
+      <td>Bacteria; Firmicutes; Bacilli; Lactobacillales; Lactobacillaceae;  Lactobacillus; s__ruminis</td>
+    </tr>
+    <tr>
+      <td>c878ea3979de4d780d7e3e9b37797c9f</td>
+      <td>Bacteria; Actinobacteria; Actinobacteria; Bifidobacteriales;  Bifidobacteriaceae; Bifidobacterium; s__</td>
+    </tr>
+    <tr>
+      <td>98aaddfc3162f1cc9f308cc008748a28</td>
+      <td>Bacteria; Firmicutes; Clostridia; Clostridiales; Lachnospiraceae;  Blautia; s__obeum</td>
+    </tr>
+    <tr>
+      <td>3a9fc45622619d3fd38007c1852eb7cd</td>
+      <td>Bacteria; Bacteroidetes; Bacteroidia; Bacteroidales; Prevotellaceae;  Prevotella; s__copri</td>
+    </tr>
+    <tr>
+      <td>28122e04ec3fd0344659c8d74bd7d78b</td>
+      <td>Bacteria; Firmicutes; Clostridia; Clostridiales; Lachnospiraceae</td>
+    </tr>
+    <tr>
+      <td>e96d365cd48141668838c3f8121fa21a</td>
+      <td>Bacteria; Firmicutes; Clostridia; Clostridiales; Lachnospiraceae;  Coprococcus; s__catus</td>
+    </tr>
+    <tr>
+      <td>fd0a3dc53155f8a85951b9ee8addb8b0</td>
+      <td>Bacteria; Firmicutes; Bacilli; Lactobacillales; Lactobacillaceae;  Lactobacillus; s__mucosae</td>
+    </tr>
+    <tr>
+      <td>1585491003a692e661e3e84794a0c541</td>
+      <td>Bacteria; Proteobacteria; Gammaproteobacteria; Enterobacteriales;  Enterobacteriaceae</td>
+    </tr>
+    <tr>
+      <td>b97be820e4bf0d5a3c32cfb1f1512a40</td>
+      <td>Bacteria</td>
+    </tr>
+    <tr>
+      <td>fb9fff85b91dae8de2154b82cd2ca4b5</td>
+      <td>Bacteria; Firmicutes; Clostridia; Clostridiales; Ruminococcaceae;  Faecalibacterium; s__prausnitzii</td>
+    </tr>
+    <tr>
+      <td>88bad5fd626727f0d8fef57f9dbb6e0f</td>
+      <td>Bacteria; Firmicutes; Bacilli; Lactobacillales; Enterococcaceae;  Enterococcus</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>上述表格为按照<code class="language-plaintext highlighter-rouge">importance score</code>排列所得。</p>
+
+<h3 id="summary">Summary</h3>
+
+<p>多个数据集之间是可以合并分析的，并且具有较好的一致性。</p>
+
+<h3 id="数据子集分析18-months">数据子集分析（&lt;18 months）</h3>
+
+<p>由于数据混合和时间跨度过大，猜测是否是年龄太大会带来拟合上的问题。故选取数据为18个月以内的数据进行分析</p>
+
+<p>我们的变量存储在<code class="language-plaintext highlighter-rouge">otu</code>中,筛选后保留920个样本，包含745个孟加拉样本和175马拉维样本。</p>
+
+<p>仍然以0.7和0.3的比例选取训练和测试样本。对应637和273个训练测试样本</p>
+
+<div class="language-R highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">otu_subset</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">otu</span><span class="p">[</span><span class="n">which</span><span class="p">(</span><span class="n">otu</span><span class="o">$</span><span class="n">Age</span><span class="o">&lt;=</span><span class="m">18</span><span class="p">),]</span><span class="w">
+</span><span class="n">train_index</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">sample</span><span class="p">(</span><span class="n">rownames</span><span class="p">(</span><span class="n">otu_subset</span><span class="p">),</span><span class="n">nrow</span><span class="p">(</span><span class="n">otu_subset</span><span class="p">)</span><span class="o">*</span><span class="m">0.7</span><span class="p">)</span><span class="w">
+</span><span class="n">valid_index</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">setdiff</span><span class="p">(</span><span class="n">rownames</span><span class="p">(</span><span class="n">otu_subset</span><span class="p">),</span><span class="n">train_index</span><span class="p">)</span><span class="w"> 
+</span><span class="n">train_sample</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">otu_subset</span><span class="p">[</span><span class="n">train_index</span><span class="p">,]</span><span class="w">
+</span><span class="n">valid_sample</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">otu_subset</span><span class="p">[</span><span class="n">valid_index</span><span class="p">,]</span><span class="w">
+</span><span class="c1"># RF Glimpse</span><span class="w">
+</span><span class="n">set.seed</span><span class="p">(</span><span class="m">123</span><span class="p">)</span><span class="w">  </span><span class="c1"># 创建随机种子，从而使得结果可重复</span><span class="w">
+</span><span class="n">otu_train.forest</span><span class="o">&lt;-</span><span class="w"> </span><span class="n">randomForest</span><span class="p">(</span><span class="n">Age</span><span class="o">~</span><span class="n">.</span><span class="p">,</span><span class="w"> </span><span class="n">data</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">train_sample</span><span class="p">,</span><span class="w"> </span><span class="n">importance</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">TRUE</span><span class="p">)</span><span class="w"> </span><span class="c1">## 开始训练</span><span class="w">
+</span><span class="n">otu_train.forest</span><span class="w">
+</span></code></pre></div></div>
+
+<blockquote>
+  <p>Call:
+randomForest(formula = Age ~ ., data = train_sample, importance = TRUE) 
+              Type of random forest: regression
+                    Number of trees: 500
+No. of variables tried at each split: 179</p>
+
+  <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>     Mean of squared residuals: 8.873464
+               % Var explained: 64.2
+</code></pre></div>  </div>
+</blockquote>
+
+<div class="language-R highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">importance_otu</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">data.frame</span><span class="p">(</span><span class="n">otu_train.forest</span><span class="o">$</span><span class="n">importance</span><span class="p">)</span><span class="w">
+</span><span class="n">importance_otu</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">importance_otu</span><span class="p">[</span><span class="n">order</span><span class="p">(</span><span class="n">importance_otu</span><span class="o">$</span><span class="n">IncNodePurity</span><span class="p">,</span><span class="w"> </span><span class="n">decreasing</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">TRUE</span><span class="p">),</span><span class="w"> </span><span class="p">]</span><span class="w">
+</span><span class="n">otu_train</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">train_sample</span><span class="w">
+</span><span class="n">otu_train.cv</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">replicate</span><span class="p">(</span><span class="m">5</span><span class="p">,</span><span class="w"> </span><span class="n">rfcv</span><span class="p">(</span><span class="n">otu_train</span><span class="p">[</span><span class="o">-</span><span class="n">ncol</span><span class="p">(</span><span class="n">otu_train</span><span class="p">)],</span><span class="w"> </span><span class="n">otu_train</span><span class="o">$</span><span class="n">Age</span><span class="p">,</span><span class="w"> </span><span class="n">cv.fold</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="m">10</span><span class="p">,</span><span class="w"> </span><span class="n">step</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="m">1.5</span><span class="p">),</span><span class="w"> </span><span class="n">simplify</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">FALSE</span><span class="p">)</span><span class="w">
+</span><span class="n">otu_train.cv</span><span class="w">
+</span><span class="n">otu_train.cv</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">data.frame</span><span class="p">(</span><span class="n">sapply</span><span class="p">(</span><span class="n">otu_train.cv</span><span class="p">,</span><span class="w"> </span><span class="s1">'[['</span><span class="p">,</span><span class="w"> </span><span class="s1">'error.cv'</span><span class="p">))</span><span class="w">
+</span><span class="n">otu_train.cv</span><span class="o">$</span><span class="n">otus</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">rownames</span><span class="p">(</span><span class="n">otu_train.cv</span><span class="p">)</span><span class="w">
+</span><span class="n">otu_train.cv</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">reshape2</span><span class="o">::</span><span class="n">melt</span><span class="p">(</span><span class="n">otu_train.cv</span><span class="p">,</span><span class="w"> </span><span class="n">id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'otus'</span><span class="p">)</span><span class="w">
+</span><span class="n">otu_train.cv</span><span class="o">$</span><span class="n">otus</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="nf">as.numeric</span><span class="p">(</span><span class="nf">as.character</span><span class="p">(</span><span class="n">otu_train.cv</span><span class="o">$</span><span class="n">otus</span><span class="p">))</span><span class="w">
+</span><span class="n">otu_train.cv.mean</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">aggregate</span><span class="p">(</span><span class="n">otu_train.cv</span><span class="o">$</span><span class="n">value</span><span class="p">,</span><span class="w"> </span><span class="n">by</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nf">list</span><span class="p">(</span><span class="n">otu_train.cv</span><span class="o">$</span><span class="n">otus</span><span class="p">),</span><span class="w"> </span><span class="n">FUN</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">mean</span><span class="p">)</span><span class="w">
+</span><span class="n">ggplot</span><span class="p">(</span><span class="n">otu_train.cv.mean</span><span class="p">,</span><span class="w"> </span><span class="n">aes</span><span class="p">(</span><span class="n">Group.1</span><span class="p">,</span><span class="w"> </span><span class="n">x</span><span class="p">))</span><span class="w"> </span><span class="o">+</span><span class="w">
+	</span><span class="n">geom_line</span><span class="p">()</span><span class="w"> </span><span class="o">+</span><span class="w">
+	</span><span class="n">theme</span><span class="p">(</span><span class="n">panel.grid</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">element_blank</span><span class="p">(),</span><span class="w"> </span><span class="n">panel.background</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">element_rect</span><span class="p">(</span><span class="n">color</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'black'</span><span class="p">,</span><span class="w"> </span><span class="n">fill</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'transparent'</span><span class="p">))</span><span class="w"> </span><span class="o">+</span><span class="w">
+	</span><span class="n">labs</span><span class="p">(</span><span class="n">title</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">''</span><span class="p">,</span><span class="n">x</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'Number of OTUs'</span><span class="p">,</span><span class="w"> </span><span class="n">y</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'Cross-validation error'</span><span class="p">)</span><span class="w">
+</span><span class="n">head</span><span class="p">(</span><span class="n">otu_train.cv.mean</span><span class="p">,</span><span class="w"> </span><span class="m">20</span><span class="p">)</span><span class="w">
+</span></code></pre></div></div>
+
+<blockquote>
+  <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code> Group.1         x     1        1 21.164391     2        2 16.759359     3        3 14.546684     4        4 13.048069     5        6 11.507501     6        9 10.893205     7       14 10.096992     8       21  9.880045     9       31  9.606862     10      47  9.338943     11      71  9.267957     12     106  9.242369     13     159  9.274685     14     239  9.257842     15     358  9.265815     16     537  9.412580  
+</code></pre></div>  </div>
+</blockquote>
+
+<p>结果仍然是21.我们选择这21个进行回归测试：其回归变量解释为：</p>
+
+<blockquote>
+  <p>Call:
+randomForest(formula = Age ~ ., data = otu_train.select, importance = TRUE) 
+        Type of random forest: regression
+              Number of trees: 500
+No. of variables tried at each split: 7</p>
+</blockquote>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>      Mean of squared residuals: 9.041955
+                % Var explained: 63.52 而测试集的结果为：
+</code></pre></div></div>
+
+<blockquote>
+  <p>Call:
+lm(formula = age_predict ~ otu_test.select.Age, data = Test_data)</p>
+
+  <p>Residuals:
+   Min      1Q  Median      3Q     Max 
+-7.0720 -1.5880  0.0597  1.6154  6.9139</p>
+
+  <p>Coefficients:
+                   Estimate Std. Error t value Pr(&gt;|t|)  <br />
+(Intercept)          3.86618    0.28879   13.39   &lt;2e-16 *****</p>
+
+  <p><em>*otu_test.select.Age  0.52134    0.02876   18.13   &lt;2e-16 **</em></p>
+
+  <p>Signif. codes:  0 ‘<em><strong>’ 0.001 ‘</strong>’ 0.01 ‘</em>’ 0.05 ‘.’ 0.1 ‘ ’ 1</p>
+
+  <p>Residual standard error: 2.417 on 271 degrees of freedom
+Multiple R-squared:  0.548,	Adjusted R-squared:  0.5464 
+F-statistic: 328.6 on 1 and 271 DF,  p-value: &lt; 2.2e-16</p>
+</blockquote>
+
+<p>在选取18月之前的数据作为分析发现，整体的回归性能变差了。</p>
+
+<h3 id="bangladesh-only-analysis">Bangladesh only analysis</h3>
+
+<div class="language-R highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">otu_bangladesh</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">na.omit</span><span class="p">(</span><span class="n">otu</span><span class="p">[</span><span class="n">rownames</span><span class="p">(</span><span class="n">metadata</span><span class="p">)[</span><span class="n">which</span><span class="p">(</span><span class="n">metadata</span><span class="o">$</span><span class="n">Type</span><span class="o">==</span><span class="s2">"Bangladesh"</span><span class="p">)],])</span><span class="w">
+</span><span class="c1">## 共895个样本</span><span class="w">
+</span><span class="n">train_index</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">sample</span><span class="p">(</span><span class="n">rownames</span><span class="p">(</span><span class="n">otu_bangladesh</span><span class="p">),</span><span class="n">nrow</span><span class="p">(</span><span class="n">otu_bangladesh</span><span class="p">)</span><span class="o">*</span><span class="m">0.7</span><span class="p">)</span><span class="w"> </span><span class="c1">#626 samples</span><span class="w">
+</span><span class="n">valid_index</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">setdiff</span><span class="p">(</span><span class="n">rownames</span><span class="p">(</span><span class="n">otu_bangladesh</span><span class="p">),</span><span class="n">train_index</span><span class="p">)</span><span class="w"> </span><span class="c1"># 269 samples</span><span class="w">
+</span><span class="n">train_sample</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">otu_bangladesh</span><span class="p">[</span><span class="n">train_index</span><span class="p">,]</span><span class="w">
+</span><span class="n">valid_sample</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">otu_bangladesh</span><span class="p">[</span><span class="n">valid_index</span><span class="p">,]</span><span class="w">
+</span><span class="c1"># RF Glimpse</span><span class="w">
+</span><span class="n">set.seed</span><span class="p">(</span><span class="m">123</span><span class="p">)</span><span class="w">  </span><span class="c1"># 创建随机种子，从而使得结果可重复</span><span class="w">
+</span><span class="n">otu_train.forest</span><span class="o">&lt;-</span><span class="w"> </span><span class="n">randomForest</span><span class="p">(</span><span class="n">Age</span><span class="o">~</span><span class="n">.</span><span class="p">,</span><span class="w"> </span><span class="n">data</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">train_sample</span><span class="p">,</span><span class="w"> </span><span class="n">importance</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">TRUE</span><span class="p">)</span><span class="w"> </span><span class="c1">## 开始训练</span><span class="w">
+</span><span class="n">otu_train.forest</span><span class="w">
+</span></code></pre></div></div>
+
+<blockquote>
+  <p>Call:
+randomForest(formula = Age ~ ., data = train_sample, importance = TRUE) 
+              Type of random forest: regression
+                    Number of trees: 500
+No. of variables tried at each split: 179</p>
+
+  <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>     Mean of squared residuals: 12.52807
+               % Var explained: 72.18
+</code></pre></div>  </div>
+</blockquote>
+
+<p>五折交叉验证的结构表明在以feature数目为9的时候就出现了明显的误差速率减少，为了便于比较，我们仍然选择21个feature进行计算。</p>
+
+<blockquote>
+  <p>Group.1        x<br />
+  1        1 34.08701<br />
+  2        2 25.09412<br />
+  3        3 20.06591<br />
+  4        4 18.30999<br />
+  5        6 16.55228<br />
+  6        9 15.56560<br />
+  7       14 14.50420<br />
+  8       21 14.25866<br />
+  9       31 14.07609<br />
+  10      47 13.83201<br />
+  11      71 13.42821<br />
+  12     106 13.42704<br />
+  13     159 13.34986<br />
+  14     239 13.36199<br />
+  15     358 13.48967<br />
+  16     537 13.49233</p>
+</blockquote>
+
+<p>上述结果为：</p>
+
+<blockquote>
+  <p>Call:
+randomForest(formula = Age ~ ., data = otu_train.select, importance = TRUE) 
+              Type of random forest: regression
+                    Number of trees: 500
+No. of variables tried at each split: 7</p>
+
+  <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>     Mean of squared residuals: 13.46171
+               % Var explained: 70.11
+</code></pre></div>  </div>
+</blockquote>
+
+<p>该结果是较为精准的。</p>
+
+<h4 id="结果比较">结果比较</h4>
+
+<p>我们将仅由Bangladesh的数据和合并数据的物种ASV进行比较，其中14个物种是共有的。</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Taxon_Different</th>
+      <th>Confidence</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>ca033ba99529a006cd0c11e92fb8e942</td>
+      <td>Bacteria; Firmicutes; Erysipelotrichi; Erysipelotrichales;  Erysipelotrichaceae; Catenibacterium; s__</td>
+    </tr>
+    <tr>
+      <td>b6a27409a4e20ef37eec8b1c67c6c076</td>
+      <td>Bacteria</td>
+    </tr>
+    <tr>
+      <td>648ca9256127f35fad4013e8f62cef3b</td>
+      <td>Bacteria</td>
+    </tr>
+    <tr>
+      <td>1c4b3a88cb2d430b45d61279400da346</td>
+      <td>Bacteria</td>
+    </tr>
+    <tr>
+      <td>1b369a94dfbe2959f70aa4e147b09420</td>
+      <td>Bacteria; Firmicutes; Bacilli; Lactobacillales; Streptococcaceae;  Streptococcus; s__luteciae</td>
+    </tr>
+    <tr>
+      <td>dea94664b6e8ad6823604fa2c8f2eb4e</td>
+      <td>Bacteria; Firmicutes; Bacilli; Lactobacillales; Streptococcaceae;  Streptococcus; s__</td>
+    </tr>
+    <tr>
+      <td>5d5e07a2af7eac6b0b0602d5a163a02e</td>
+      <td>Bacteria; Actinobacteria; Actinobacteria; Bifidobacteriales;  Bifidobacteriaceae; Bifidobacterium; s__bifidum</td>
+    </tr>
+  </tbody>
+</table>
+
+<table>
+  <thead>
+    <tr>
+      <th>Taxon_Same</th>
+      <th>Confidence</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>f118662f3e5f209f582ffbaf39e21807</td>
+      <td>Bacteria; Firmicutes; Clostridia; Clostridiales; Lachnospiraceae;  Blautia; s__</td>
+    </tr>
+    <tr>
+      <td>c3ae999022b2b3dba38bf8d4e08242c1</td>
+      <td><strong>Bacteria; Firmicutes; Clostridia; Clostridiales; Lachnospiraceae; Dorea;  s__formicigenerans</strong></td>
+    </tr>
+    <tr>
+      <td>c7dad10896f6c10619ec4d963d5a0d4c</td>
+      <td><strong>Bacteria; Firmicutes; Clostridia; Clostridiales; Lachnospiraceae; Dorea;  s__longicatena</strong></td>
+    </tr>
+    <tr>
+      <td>6c38c23dde65be3184382ccaafdbc7aa</td>
+      <td><strong>Bacteria; Firmicutes; Bacilli; Bacillales; Staphylococcaceae;  Staphylococcus</strong></td>
+    </tr>
+    <tr>
+      <td>f00219cfb5ea9d13f4be1e63c6822722</td>
+      <td><strong>Bacteria; Firmicutes; Clostridia; Clostridiales; Ruminococcaceae;  Faecalibacterium; s__prausnitzii</strong></td>
+    </tr>
+    <tr>
+      <td>c60a6281dea0f58a0154c2efcdb19cff</td>
+      <td><strong>Bacteria; Firmicutes; Bacilli; Lactobacillales; Lactobacillaceae;  Lactobacillus; s__ruminis</strong></td>
+    </tr>
+    <tr>
+      <td>c878ea3979de4d780d7e3e9b37797c9f</td>
+      <td><strong>Bacteria; Actinobacteria; Actinobacteria; Bifidobacteriales;  Bifidobacteriaceae; Bifidobacterium; s__</strong></td>
+    </tr>
+    <tr>
+      <td>b99a5879168a9d117fdffb707e1f682c</td>
+      <td>Bacteria; Firmicutes; Clostridia; Clostridiales; Lachnospiraceae;  Blautia; s__</td>
+    </tr>
+    <tr>
+      <td>2ea082fe7de3327a025e61006313746b</td>
+      <td><strong>Bacteria; Proteobacteria; Gammaproteobacteria; Pasteurellales;  Pasteurellaceae; Haemophilus; s__parainfluenzae</strong></td>
+    </tr>
+    <tr>
+      <td>ed8930aed9ccc63f5b22fd4229ef3361</td>
+      <td>Bacteria; Firmicutes; Clostridia; Clostridiales; Ruminococcaceae;  Gemmiger; s__formicilis</td>
+    </tr>
+    <tr>
+      <td>b97be820e4bf0d5a3c32cfb1f1512a40</td>
+      <td>Bacteria</td>
+    </tr>
+    <tr>
+      <td>2792f7e5c84a91ba5a549be947465cb6</td>
+      <td><strong>Bacteria; Actinobacteria; Actinobacteria; Bifidobacteriales;  Bifidobacteriaceae; Bifidobacterium</strong></td>
+    </tr>
+    <tr>
+      <td>fd0a3dc53155f8a85951b9ee8addb8b0</td>
+      <td><strong>Bacteria; Firmicutes; Bacilli; Lactobacillales; Lactobacillaceae;  Lactobacillus; s__mucosae</strong></td>
+    </tr>
+    <tr>
+      <td>3a9fc45622619d3fd38007c1852eb7cd</td>
+      <td>Bacteria; Bacteroidetes; Bacteroidia; Bacteroidales; Prevotellaceae;  Prevotella; s__copri</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>上述14个保留物种在原文中top24的以加粗形式显示。</p>
+
+<h2 id="分阶段随机森林分类">分阶段随机森林分类</h2>
+
+<p>上述模型是以每个微生物（细菌）的丰度和年龄进行的回归，这里我们选择分阶段做分类任务预测。</p>
+
+<p>整个数据的年龄分布:</p>
+
+<p><img src="https://hugo-blog-1256988836.cos.ap-chengdu.myqcloud.com/16S/Micor-develop/ref7_13/classification/age_distribution.png" style="width:30px height:20px" /></p>
+
+<p>载入packages：</p>
+
+<div class="language-R highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">library</span><span class="p">(</span><span class="n">randomForest</span><span class="p">)</span><span class="w">
+</span><span class="n">require</span><span class="p">(</span><span class="n">caTools</span><span class="p">)</span><span class="w">
+</span><span class="n">library</span><span class="p">(</span><span class="n">ROSE</span><span class="p">)</span><span class="w"> </span><span class="c1">## 解决样本不均衡问题</span><span class="w">
+</span><span class="n">library</span><span class="p">(</span><span class="n">doBy</span><span class="p">)</span><span class="w">  </span><span class="c1">#方便基于分组取均值，使用其中的summaryBy()命令</span><span class="w">
+</span><span class="n">library</span><span class="p">(</span><span class="n">reshape2</span><span class="p">)</span><span class="w">    </span><span class="c1">#方便排列表格，使用其中的melt()命令</span><span class="w">
+</span><span class="n">library</span><span class="p">(</span><span class="n">ggplot2</span><span class="p">)</span><span class="w">
+</span><span class="n">library</span><span class="p">(</span><span class="n">pROC</span><span class="p">)</span><span class="w">  </span><span class="c1"># 绘制ROC曲线</span><span class="w">
+</span><span class="n">library</span><span class="p">(</span><span class="n">caret</span><span class="p">)</span><span class="w">
+</span><span class="n">library</span><span class="p">(</span><span class="n">pheatmap</span><span class="p">)</span><span class="w">
+</span></code></pre></div></div>
+
+<h3 id="随机森林构建">随机森林构建</h3>
+
+<p>创建stage:</p>
+
+<div class="language-R highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">metadata</span><span class="o">$</span><span class="n">stage</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="kc">NA</span><span class="w">
+</span><span class="k">for</span><span class="p">(</span><span class="n">i</span><span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="m">1</span><span class="o">:</span><span class="nf">dim</span><span class="p">(</span><span class="n">metadata</span><span class="p">)[</span><span class="m">1</span><span class="p">])</span><span class="w">
+</span><span class="p">{</span><span class="w">
+    </span><span class="k">if</span><span class="p">(</span><span class="n">metadata</span><span class="o">$</span><span class="n">Age</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">&lt;=</span><span class="m">1</span><span class="p">)</span><span class="w"> </span><span class="n">metadata</span><span class="o">$</span><span class="n">stage</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="s2">"I"</span><span class="w">
+    </span><span class="k">if</span><span class="p">(</span><span class="n">metadata</span><span class="o">$</span><span class="n">Age</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">&gt;</span><span class="m">1</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> </span><span class="n">metadata</span><span class="o">$</span><span class="n">Age</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">&lt;=</span><span class="m">3</span><span class="p">)</span><span class="w"> </span><span class="n">metadata</span><span class="o">$</span><span class="n">stage</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="s2">"II"</span><span class="w">
+    </span><span class="k">if</span><span class="p">(</span><span class="n">metadata</span><span class="o">$</span><span class="n">Age</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">&gt;</span><span class="m">3</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> </span><span class="n">metadata</span><span class="o">$</span><span class="n">Age</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">&lt;=</span><span class="m">6</span><span class="p">)</span><span class="w"> </span><span class="n">metadata</span><span class="o">$</span><span class="n">stage</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="s2">"III"</span><span class="w">
+    </span><span class="k">if</span><span class="p">(</span><span class="n">metadata</span><span class="o">$</span><span class="n">Age</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">&gt;</span><span class="m">6</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> </span><span class="n">metadata</span><span class="o">$</span><span class="n">Age</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">&lt;=</span><span class="m">12</span><span class="p">)</span><span class="w"> </span><span class="n">metadata</span><span class="o">$</span><span class="n">stage</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="s2">"IV"</span><span class="w">
+    </span><span class="k">if</span><span class="p">(</span><span class="n">metadata</span><span class="o">$</span><span class="n">Age</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">&gt;</span><span class="m">12</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> </span><span class="n">metadata</span><span class="o">$</span><span class="n">Age</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">&lt;=</span><span class="m">18</span><span class="p">)</span><span class="w"> </span><span class="n">metadata</span><span class="o">$</span><span class="n">stage</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="s2">"V"</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span><span class="k">for</span><span class="p">(</span><span class="n">i</span><span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="m">1</span><span class="o">:</span><span class="nf">dim</span><span class="p">(</span><span class="n">metadata</span><span class="p">)[</span><span class="m">1</span><span class="p">])</span><span class="w">
+</span><span class="p">{</span><span class="w">
+    </span><span class="k">if</span><span class="p">(</span><span class="n">metadata</span><span class="o">$</span><span class="n">Age</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">&lt;=</span><span class="m">3</span><span class="p">)</span><span class="w"> </span><span class="n">metadata</span><span class="o">$</span><span class="n">stage</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="s2">"I"</span><span class="w">
+    </span><span class="k">if</span><span class="p">(</span><span class="n">metadata</span><span class="o">$</span><span class="n">Age</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">&gt;</span><span class="m">3</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> </span><span class="n">metadata</span><span class="o">$</span><span class="n">Age</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">&lt;=</span><span class="m">6</span><span class="p">)</span><span class="w"> </span><span class="n">metadata</span><span class="o">$</span><span class="n">stage</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="s2">"II"</span><span class="w">
+    </span><span class="k">if</span><span class="p">(</span><span class="n">metadata</span><span class="o">$</span><span class="n">Age</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">&gt;</span><span class="m">6</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> </span><span class="n">metadata</span><span class="o">$</span><span class="n">Age</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">&lt;=</span><span class="m">12</span><span class="p">)</span><span class="w"> </span><span class="n">metadata</span><span class="o">$</span><span class="n">stage</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="s2">"III"</span><span class="w">
+    </span><span class="k">if</span><span class="p">(</span><span class="n">metadata</span><span class="o">$</span><span class="n">Age</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">&gt;</span><span class="m">12</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> </span><span class="n">metadata</span><span class="o">$</span><span class="n">Age</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">&lt;=</span><span class="m">18</span><span class="p">)</span><span class="w"> </span><span class="n">metadata</span><span class="o">$</span><span class="n">stage</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="s2">"IV"</span><span class="w">
+    </span><span class="k">if</span><span class="p">(</span><span class="n">metadata</span><span class="o">$</span><span class="n">Age</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">&gt;</span><span class="m">18</span><span class="p">)</span><span class="w"> </span><span class="n">metadata</span><span class="o">$</span><span class="n">stage</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="s2">"V"</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span><span class="n">metadata</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">na.omit</span><span class="p">(</span><span class="n">metadata</span><span class="p">)</span><span class="w">
+</span><span class="n">otu</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">data.frame</span><span class="p">(</span><span class="n">t</span><span class="p">(</span><span class="n">filter_abundance</span><span class="p">))</span><span class="w">
+</span><span class="n">otu</span><span class="o">$</span><span class="n">stage</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">metadata</span><span class="p">[</span><span class="n">rownames</span><span class="p">(</span><span class="n">otu</span><span class="p">),]</span><span class="o">$</span><span class="n">stage</span><span class="w">
+</span><span class="n">otu</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">na.omit</span><span class="p">(</span><span class="n">otu</span><span class="p">)</span><span class="w"> </span><span class="c1"># 保留了910个样本</span><span class="w">
+</span><span class="n">table</span><span class="p">(</span><span class="n">otu</span><span class="o">$</span><span class="n">stage</span><span class="p">)</span><span class="w">
+</span></code></pre></div></div>
+
+<table>
+  <thead>
+    <tr>
+      <th>I</th>
+      <th>II</th>
+      <th>III</th>
+      <th>IV</th>
+      <th>V</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>58</td>
+      <td>110</td>
+      <td>156</td>
+      <td>340</td>
+      <td>246</td>
+    </tr>
+  </tbody>
+</table>
+
+<div class="language-r highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">set.seed</span><span class="p">(</span><span class="m">1234</span><span class="p">)</span><span class="w">  </span><span class="c1">##确保结果可重复</span><span class="w">
+</span><span class="n">train_index</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">sample</span><span class="p">(</span><span class="n">rownames</span><span class="p">(</span><span class="n">otu</span><span class="p">),</span><span class="n">nrow</span><span class="p">(</span><span class="n">otu</span><span class="p">)</span><span class="o">*</span><span class="m">0.7</span><span class="p">)</span><span class="w">
+</span><span class="n">valid_index</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">setdiff</span><span class="p">(</span><span class="n">rownames</span><span class="p">(</span><span class="n">otu</span><span class="p">),</span><span class="n">train_index</span><span class="p">)</span><span class="w"> 
+</span><span class="n">train_sample</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">transform</span><span class="p">(</span><span class="n">otu</span><span class="p">[</span><span class="n">train_index</span><span class="p">,],</span><span class="n">stage</span><span class="o">=</span><span class="n">as.factor</span><span class="p">(</span><span class="n">stage</span><span class="p">))</span><span class="w">
+</span><span class="n">valid_sample</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">transform</span><span class="p">(</span><span class="n">otu</span><span class="p">[</span><span class="n">valid_index</span><span class="p">,],</span><span class="n">stage</span><span class="o">=</span><span class="n">as.factor</span><span class="p">(</span><span class="n">stage</span><span class="p">))</span><span class="w">
+
+</span><span class="n">rf_ntree</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">randomForest</span><span class="p">(</span><span class="n">stage</span><span class="o">~</span><span class="n">.</span><span class="p">,</span><span class="n">data</span><span class="o">=</span><span class="n">train_sample</span><span class="p">,</span><span class="n">ntree</span><span class="o">=</span><span class="m">2000</span><span class="p">)</span><span class="w">
+</span><span class="n">plot</span><span class="p">(</span><span class="n">rf_ntree</span><span class="p">)</span><span class="w">
+</span></code></pre></div></div>
+
+<p><img src="https://hugo-blog-1256988836.cos.ap-chengdu.myqcloud.com/16S/Micor-develop/ref7_13/classification/error_rate.png" alt="" /></p>
+
+<p>当ntree=1000时，模型内的误差还不够稳定，另外，整体错误率十分的高，具有非常差的分类效果。我们勉强采取<code class="language-plaintext highlighter-rouge">ntree=500</code>进行计算</p>
+
+<div class="language-R highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">develop_rf</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">randomForest</span><span class="p">(</span><span class="n">stage</span><span class="w"> </span><span class="o">~</span><span class="w"> </span><span class="n">.</span><span class="p">,</span><span class="w"> </span><span class="n">train_sample</span><span class="p">,</span><span class="w"> </span><span class="n">ntree</span><span class="o">=</span><span class="m">500</span><span class="p">,</span><span class="n">proximity</span><span class="o">=</span><span class="kc">TRUE</span><span class="p">)</span><span class="w">
+</span><span class="c1"># develop_rf &lt;- randomForest(stage ~ ., train_sample, ntree=1000,proximity=TRUE)</span><span class="w">
+</span><span class="n">develop_rf</span><span class="w">
+</span></code></pre></div></div>
+
+<blockquote>
+  <p>Call:
+randomForest(formula = stage ~ ., data = train_sample, ntree = 500,      proximity = TRUE) 
+        Type of random forest: classification
+              Number of trees: 500
+No. of variables tried at each split: 23</p>
+
+  <p>​    OOB estimate of  error rate: 40.97%</p>
+
+  <p>Confusion matrix:
+    I II III  IV   V class.error
+I   21  7   2   7   2   0.4615385
+II   4 18  27  20   1   0.7428571
+III  0 20  40  42   1   0.6116505
+IV   3  9  15 184  34   0.2489796
+V    0  0   1  66 113   0.3722222</p>
+</blockquote>
+
+<p>上述展示的OOB error为40.97%，有点惨不忍睹。这可能是由于多分类任务的复杂性带来的。</p>
+
+<div class="language-R highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># 计算模型变量的重要性</span><span class="w">
+</span><span class="n">importance_otu</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">data.frame</span><span class="p">(</span><span class="n">importance</span><span class="p">(</span><span class="n">develop_rf</span><span class="p">))</span><span class="w">
+</span><span class="n">importance_otu</span><span class="o">$</span><span class="n">accu</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="kc">NA</span><span class="w">
+</span><span class="n">importance_otu</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">importance_otu</span><span class="p">[</span><span class="n">order</span><span class="p">(</span><span class="n">importance_otu</span><span class="o">$</span><span class="n">MeanDecreaseGini</span><span class="p">,</span><span class="w"> </span><span class="n">decreasing</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">T</span><span class="p">),</span><span class="w"> </span><span class="p">]</span><span class="w">
+
+</span><span class="c1"># 模型自身测试</span><span class="w">
+</span><span class="n">pred1</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">predict</span><span class="p">(</span><span class="n">develop_rf</span><span class="p">,</span><span class="w"> </span><span class="n">data</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">train_sample</span><span class="p">)</span><span class="w">
+</span><span class="n">freq1</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">table</span><span class="p">(</span><span class="n">pred1</span><span class="p">,</span><span class="w"> </span><span class="n">train_sample</span><span class="o">$</span><span class="n">stage</span><span class="p">)</span><span class="w">
+</span><span class="nf">sum</span><span class="p">(</span><span class="n">diag</span><span class="p">(</span><span class="n">freq1</span><span class="p">)</span><span class="o">/</span><span class="nf">sum</span><span class="p">(</span><span class="n">freq1</span><span class="p">))</span><span class="w">
+</span><span class="c1"># the result is 0.5902669</span><span class="w">
+
+</span><span class="n">test_predict</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">predict</span><span class="p">(</span><span class="n">develop_rf</span><span class="p">,</span><span class="w"> </span><span class="n">newdata</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">valid_sample</span><span class="p">)</span><span class="w">
+</span><span class="n">cm</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">table</span><span class="p">(</span><span class="n">valid_sample</span><span class="o">$</span><span class="n">stage</span><span class="p">,</span><span class="w"> </span><span class="n">test_predict</span><span class="p">)</span><span class="w">
+</span></code></pre></div></div>
+
+<table>
+  <thead>
+    <tr>
+      <th> </th>
+      <th>I</th>
+      <th>II</th>
+      <th>III</th>
+      <th>IV</th>
+      <th>V</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><strong>I</strong></td>
+      <td>16</td>
+      <td>3</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <td><strong>II</strong></td>
+      <td>9</td>
+      <td>15</td>
+      <td>8</td>
+      <td>7</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <td><strong>III</strong></td>
+      <td>0</td>
+      <td>7</td>
+      <td>21</td>
+      <td>22</td>
+      <td>3</td>
+    </tr>
+    <tr>
+      <td><strong>IV</strong></td>
+      <td>2</td>
+      <td>1</td>
+      <td>5</td>
+      <td>77</td>
+      <td>10</td>
+    </tr>
+    <tr>
+      <td><strong>V</strong></td>
+      <td>0</td>
+      <td>1</td>
+      <td>2</td>
+      <td>26</td>
+      <td>37</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>上述混淆矩阵的特色为，单个分类可能会错分到临近的其他分类，但是<code class="language-plaintext highlighter-rouge">I</code>很难分到<code class="language-plaintext highlighter-rouge">V</code>,即时间跨度大的错误分类很少出现。</p>
+
+<p>这引出了一个猜想为，在婴儿的微生物发展过程中，可能并未有明显的性别特征能够将数据划分为不同的阶段，而是处于一种连续的渐变过程，但是总体上，如果两个阶段距离较远，则很可能具有较大的微生物群落差异。</p>
+
+<h3 id="变量筛选">变量筛选</h3>
+
+<p>借助于连续性的回归模型，我们还是选择使用部分ASV来查看这些样本的变化。我们选择50个ASV来进行随机森林构建，查看结果。</p>
+
+<div class="language-R highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">importance_otu_50</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">importance_otu</span><span class="p">[</span><span class="m">1</span><span class="o">:</span><span class="m">50</span><span class="p">,</span><span class="w"> </span><span class="p">]</span><span class="w">
+</span><span class="n">otu_select</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">rownames</span><span class="p">(</span><span class="n">importance_otu_50</span><span class="p">)</span><span class="w">
+</span><span class="n">otu_train_50</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">train_sample</span><span class="p">[</span><span class="nf">c</span><span class="p">(</span><span class="n">otu_select</span><span class="p">,</span><span class="w"> </span><span class="s1">'stage'</span><span class="p">)]</span><span class="w">
+</span><span class="n">otu_valid_50</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">valid_sample</span><span class="p">[</span><span class="nf">c</span><span class="p">(</span><span class="n">otu_select</span><span class="p">,</span><span class="w"> </span><span class="s1">'stage'</span><span class="p">)]</span><span class="w">
+</span><span class="n">otu_train.forest_50</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">randomForest</span><span class="p">(</span><span class="n">stage</span><span class="w"> </span><span class="o">~</span><span class="w"> </span><span class="n">.</span><span class="p">,</span><span class="w"> </span><span class="n">data</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">otu_train_50</span><span class="p">,</span><span class="w"> </span><span class="n">importance</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">TRUE</span><span class="p">,</span><span class="n">proximity</span><span class="o">=</span><span class="kc">TRUE</span><span class="p">)</span><span class="w">
+</span><span class="n">valid_predict_50</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">predict</span><span class="p">(</span><span class="n">otu_train.forest_50</span><span class="p">,</span><span class="w"> </span><span class="n">newdata</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">otu_valid_50</span><span class="p">)</span><span class="w">
+</span><span class="n">cm</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">table</span><span class="p">(</span><span class="n">otu_valid_50</span><span class="o">$</span><span class="n">stage</span><span class="p">,</span><span class="w"> </span><span class="n">valid_predict_50</span><span class="p">)</span><span class="w"> </span><span class="c1"># 混淆矩阵</span><span class="w">
+</span><span class="nf">sum</span><span class="p">(</span><span class="n">diag</span><span class="p">(</span><span class="n">cm</span><span class="p">)</span><span class="o">/</span><span class="nf">sum</span><span class="p">(</span><span class="n">cm</span><span class="p">))</span><span class="w">  </span><span class="c1">## 0.5494505</span><span class="w">
+</span><span class="n">cm</span><span class="w">
+</span></code></pre></div></div>
+
+<table>
+  <thead>
+    <tr>
+      <th> </th>
+      <th>I</th>
+      <th>II</th>
+      <th>III</th>
+      <th>IV</th>
+      <th>V</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><strong>I</strong></td>
+      <td>16</td>
+      <td>3</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <td><strong>II</strong></td>
+      <td>13</td>
+      <td>10</td>
+      <td>8</td>
+      <td>8</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <td><strong>III</strong></td>
+      <td>1</td>
+      <td>6</td>
+      <td>21</td>
+      <td>22</td>
+      <td>3</td>
+    </tr>
+    <tr>
+      <td><strong>IV</strong></td>
+      <td>3</td>
+      <td>1</td>
+      <td>10</td>
+      <td>67</td>
+      <td>14</td>
+    </tr>
+    <tr>
+      <td><strong>V</strong></td>
+      <td>0</td>
+      <td>1</td>
+      <td>0</td>
+      <td>29</td>
+      <td>36</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>我们想看一下这个物种都属于什么：</p>
+
+<div class="language-R highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">write.table</span><span class="p">(</span><span class="n">importance_otu_50</span><span class="p">,</span><span class="s2">"classification/importance_50_otu.txt"</span><span class="p">,</span><span class="n">sep</span><span class="o">=</span><span class="s2">"\t"</span><span class="p">,</span><span class="n">quote</span><span class="o">=</span><span class="nb">F</span><span class="p">)</span><span class="w">
+</span><span class="n">ASV_taxa</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">read.table</span><span class="p">(</span><span class="s2">"taxonomy.txt"</span><span class="p">,</span><span class="n">header</span><span class="o">=</span><span class="nb">T</span><span class="p">,</span><span class="n">sep</span><span class="o">=</span><span class="s2">"\t"</span><span class="p">,</span><span class="n">check.names</span><span class="o">=</span><span class="nb">F</span><span class="p">)</span><span class="w">
+</span><span class="n">select</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">read.table</span><span class="p">(</span><span class="s2">"classification/importance_50_otu.txt"</span><span class="p">,</span><span class="n">header</span><span class="o">=</span><span class="nb">T</span><span class="p">,</span><span class="n">sep</span><span class="o">=</span><span class="s2">"\t"</span><span class="p">,</span><span class="n">check.names</span><span class="o">=</span><span class="nb">F</span><span class="p">)</span><span class="w">
+</span><span class="n">result</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">inner_join</span><span class="p">(</span><span class="n">ASV_taxa</span><span class="p">,</span><span class="n">select</span><span class="p">,</span><span class="n">by</span><span class="o">=</span><span class="s2">"ASV"</span><span class="p">)</span><span class="w">
+</span><span class="n">result</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">result</span><span class="p">[</span><span class="n">order</span><span class="p">(</span><span class="n">result</span><span class="o">$</span><span class="n">MeanDecreaseGini</span><span class="p">,</span><span class="w"> </span><span class="n">decreasing</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">TRUE</span><span class="p">),</span><span class="w"> </span><span class="p">]</span><span class="w">
+</span><span class="n">write.table</span><span class="p">(</span><span class="n">result</span><span class="p">,</span><span class="s2">"classification/Select_asv_taxa.txt"</span><span class="p">,</span><span class="n">quote</span><span class="o">=</span><span class="nb">F</span><span class="p">,</span><span class="n">sep</span><span class="o">=</span><span class="s2">"\t"</span><span class="p">,</span><span class="n">row.names</span><span class="o">=</span><span class="nb">F</span><span class="p">)</span><span class="w">
+</span></code></pre></div></div>
+
+<p>物种结果可见于<a href="https://hugo-blog-1256988836.cos.ap-chengdu.myqcloud.com/16S/Micor-develop/ref7_13/classification/Select_asv_taxa.txt">文本</a></p>
+
+:ET

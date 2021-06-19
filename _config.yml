@@ -1,5 +1,5 @@
 # Site settings | 网站设置
-title: XP哥哥
+title: xpgege
 SEOTitle: XP哥哥的博客 | XP哥哥
 header-img: img/home-bg-he.png
 email: 779470431@qq.com
@@ -12,7 +12,7 @@ github_repo: "https://github.com/xpgege/xpgege.github.io.git" #code repository |
 
 # Sidebar settings | 侧边栏设置
 sidebar: true                           # whether or not using Sidebar.
-sidebar-about-description: "就算这样,也要笑着去努力啊!"
+sidebar-about-description: "幸好我爱笑，生活才没那么糟"
 sidebar-avatar: /img/head.jpg      # 头像
 
 
