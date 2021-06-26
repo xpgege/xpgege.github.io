@@ -1,8 +1,8 @@
 ---
 layout:     post
 title:      本地访问 docker镜像启动的jupyter notebook
-subtitle:   记录docker jupyter notebook
-date:       docker/jupyter notebook
+subtitle:   docker/jupyter notebook
+date:       2021-6-26
 author:     xpgege
 header-img: img/post-web.jpg
 catalog: true
