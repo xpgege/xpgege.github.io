@@ -6,6 +6,7 @@ author:     xpgege
 header-img: img/post-web.jpg
 catalog: true
 tags:
+
     - 知识记录
 
 #1.登录服务器，安装好jupyter notebook，生成配置文件：
@@ -31,7 +32,7 @@ In [3]: exit()
 
 #3.编辑配置文件
 **注意配置文件全部都是注释掉的，记得取消注释呀，555被坑了好久**
-![image.png](https://upload-images.jianshu.io/upload_images/24666220-f58dba99588bed56.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/880)
+![image.png](https://i.loli.net/2021/06/26/EO6aQu9HTqFkhyd.png)
 ```
 # 在该文件中搜索以下配置，没有的话就添加
 
@@ -44,7 +45,7 @@ c.NotebookApp.password = u'sha1:*********************************c' # 填写刚�
 
 #4.运行
 在服务器运行 jupyter notebook。 然后在本地打开浏览器，网址处输入hostname:port，其中hostname就是服务器的ip地址，例如，222.20.79.247:8888，然后输入在第二步设置的密码即可。
-![image.png](https://upload-images.jianshu.io/upload_images/24666220-39f3e4300f8bb6ec.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
+![image.png](https://i.loli.net/2021/06/26/f1Awt9XR3VmOsqa.png)
 
 **踩坑+1**
 由于我是从docker镜像启动jupyter notebook
@@ -53,8 +54,8 @@ sudo  docker run --rm -v $(pwd):/data -p 8888:8888 --entrypoint="" kavrakilab/hl
 ```
 此时我本地浏览器登陆222.20.79.247:8888
 登陆界面为
-![image.png](https://upload-images.jianshu.io/upload_images/24666220-08b22d1db26b9ec1.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/800)
+![image.png](https://i.loli.net/2021/06/26/LeVJYUDXE4QK2vR.png)
 
 此时我输入当初设置的密码为invalid，而token令牌开始我也不知道
 后来发现每次登陆jupyter 都会随机产生一个token，将以下token输入即课正常登陆
-![image.png](https://upload-images.jianshu.io/upload_images/24666220-aa311c06131a6845.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/800)
+![image.png](https://i.loli.net/2021/06/26/va2Npd8YkoUgKMC.png)
