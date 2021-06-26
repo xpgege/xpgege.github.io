@@ -1,3 +1,15 @@
+---
+layout:     post
+title:     Alphafold文献解析
+subtitle:   Alphafold文献解析
+date:       2021-4-10
+author:     xpgege
+header-img: img/post-web.jpg
+catalog: true
+tags:
+    - 文献解析
+---
+
 # ***\*AlphaFold\****
 
  
