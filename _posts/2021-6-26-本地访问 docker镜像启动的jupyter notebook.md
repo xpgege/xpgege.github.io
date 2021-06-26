@@ -1,3 +1,4 @@
+---
 layout:     post
 title:      本地访问 docker镜像启动的jupyter notebook
 subtitle:   记录工作中Git的实用操作
@@ -6,8 +7,8 @@ author:     xpgege
 header-img: img/post-web.jpg
 catalog: true
 tags:
-
-    - 知识记录
+   -知识记录
+---
 
 #1.登录服务器，安装好jupyter notebook，生成配置文件：
 
