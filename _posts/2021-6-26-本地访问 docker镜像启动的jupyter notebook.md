@@ -7,7 +7,7 @@ author:     xpgege
 header-img: img/post-web.jpg
 catalog: true
 tags:
-   -知识记录
+   - 知识记录
 ---
 
 #1.登录服务器，安装好jupyter notebook，生成配置文件：
