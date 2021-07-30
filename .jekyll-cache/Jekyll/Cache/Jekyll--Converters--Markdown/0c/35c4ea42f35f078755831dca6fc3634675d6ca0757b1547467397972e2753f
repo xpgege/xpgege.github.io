@@ -1,0 +1,150 @@
+I""<h1 id="1简介">1.简介</h1>
+
+<p>看到别人的博客有个萌萌哒的看板娘，甚是可爱哈哈，便倒腾了一下给自己博客也建了一个。</p>
+
+<p><img src="https://i.loli.net/2021/07/30/8UZcHJn7WlEOuaS.png" alt="截图录屏_选择区域_20210730152139.png" /></p>
+
+<p>但Live2D是基于hexo开发的，网上的教程也主要是基于hexo，下面讲介绍如何jekyll搭建看板娘</p>
+
+<h1 id="2步骤">2.步骤</h1>
+
+<h2 id="1安装nodejs略">1.安装nodejs（略）</h2>
+
+<p>我的安装路径为/usr/local/application</p>
+
+<h2 id="2安装hexo">2.安装Hexo</h2>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>#下载
+npm install hexo-cli -g
+#创建一个新文件夹hexo
+mkdir hexo；cd hexo
+#初始化博客
+hexo init blog
+#进入博客
+cd blog
+#为博客安装依赖
+npm install
+#启动博客
+hexo server
+</code></pre></div></div>
+
+<h2 id="3安装live2d">3.安装live2D</h2>
+
+<h3 id="1安装">1.安装</h3>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>npm install --save hexo-helper-live2d
+</code></pre></div></div>
+
+<h3 id="2选择一个喜欢的看板娘">2.选择一个喜欢的看板娘</h3>
+
+<p>基本模型：https://github.com/xiazeyu/live2d-widget-models.git</p>
+
+<p>基本模型预览：https://huaji8.top/post/live2d-plugin-2.0/</p>
+
+<p>额外模型：https://github.com/summerscar/live2dDemo</p>
+
+<p>这里我选择的<code class="language-plaintext highlighter-rouge">shizuku</code></p>
+
+<h3 id="3下载模板">3.下载模板</h3>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code> git clone https://github.com/xiazeyu/live2d-widget-models.git
+</code></pre></div></div>
+
+<p>找到项目里的<code class="language-plaintext highlighter-rouge">live2d-widget-model-shizuku</code>文件夹，把里面<code class="language-plaintext highlighter-rouge">assets</code>里面的内容（不含<code class="language-plaintext highlighter-rouge">assets</code>文件夹），拷贝到Hexo的<code class="language-plaintext highlighter-rouge">blog</code>文件夹下新建一个<code class="language-plaintext highlighter-rouge">live2d_models\wanko</code>文件夹中</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code> cd live2d-widget-models-master/packages/live2d-widget-model-shizuku/assets
+ #在hexo的blog根目录新建一个live2d_models/shizuku 文件夹
+ mkdir -p live2d_models/shizuku
+ mv * ./blog/live2d_models/shizuku
+</code></pre></div></div>
+
+<p><img src="https://i.loli.net/2021/07/30/RMCwWXBfc4GLbPh.png" alt="截图录屏_选择区域_20210730160352" /></p>
+
+<h3 id="4配置文件">4.配置文件</h3>
+
+<p>将下面的代码添加到Hexo博客的配置文件<code class="language-plaintext highlighter-rouge">_config.xml</code>中</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>live2d:
+  enable: true
+  scriptFrom: local
+  pluginRootPath: live2dw/
+  pluginJsPath: lib/
+  pluginModelPath: assets/
+  tagMode: false
+  debug: false
+  model:
+    use: shizuku
+  display:
+    position: right
+    width: 150
+    height: 300
+  mobile:
+    show: true
+</code></pre></div></div>
+
+<p>注意<code class="language-plaintext highlighter-rouge">_config.xml</code>中的<code class="language-plaintext highlighter-rouge">model</code>下面的<code class="language-plaintext highlighter-rouge">use</code>和<code class="language-plaintext highlighter-rouge">live2d_models</code>下面的文件夹相对应。</p>
+
+<h3 id="5重新运行">5.重新运行</h3>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>hexo server
+</code></pre></div></div>
+
+<p>就可以在hexo中看到萌萌哒的看板娘啦～</p>
+
+<h3 id="6编译静态文件">6.编译静态文件</h3>
+
+<p>hexo和jekyll都属于静态博客，编译后文件都是互通的</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>hexo deploy
+</code></pre></div></div>
+
+<h2 id="4配置jeklly">4.配置jeklly</h2>
+
+<h3 id="1更改html">1.更改html</h3>
+
+<p>打开public下的<code class="language-plaintext highlighter-rouge">index.html</code>文件,获取此行,放入<code class="language-plaintext highlighter-rouge">_includes/footer.html</code>中</p>
+
+<div class="language-html highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nt">&lt;script </span><span class="na">src=</span><span class="s">"/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"</span><span class="nt">&gt;&lt;/script&gt;</span>
+<span class="nt">&lt;script&gt;</span><span class="nx">L2Dwidget</span><span class="p">.</span><span class="nx">init</span><span class="p">({</span><span class="dl">"</span><span class="s2">pluginRootPath</span><span class="dl">"</span><span class="p">:</span><span class="dl">"</span><span class="s2">live2dw/</span><span class="dl">"</span><span class="p">,</span><span class="dl">"</span><span class="s2">pluginJsPath</span><span class="dl">"</span><span class="p">:</span><span class="dl">"</span><span class="s2">lib/</span><span class="dl">"</span><span class="p">,</span><span class="dl">"</span><span class="s2">pluginModelPath</span><span class="dl">"</span><span class="p">:</span><span class="dl">"</span><span class="s2">assets/</span><span class="dl">"</span><span class="p">,</span><span class="dl">"</span><span class="s2">tagMode</span><span class="dl">"</span><span class="p">:</span><span class="kc">false</span><span class="p">,</span><span class="dl">"</span><span class="s2">debug</span><span class="dl">"</span><span class="p">:</span><span class="kc">false</span><span class="p">,</span><span class="dl">"</span><span class="s2">model</span><span class="dl">"</span><span class="p">:{</span><span class="dl">"</span><span class="s2">jsonPath</span><span class="dl">"</span><span class="p">:</span><span class="dl">"</span><span class="s2">/live2dw/assets/shizuku.model.json</span><span class="dl">"</span><span class="p">},</span><span class="dl">"</span><span class="s2">display</span><span class="dl">"</span><span class="p">:{</span><span class="dl">"</span><span class="s2">position</span><span class="dl">"</span><span class="p">:</span><span class="dl">"</span><span class="s2">right</span><span class="dl">"</span><span class="p">,</span><span class="dl">"</span><span class="s2">width</span><span class="dl">"</span><span class="p">:</span><span class="mi">225</span><span class="p">,</span><span class="dl">"</span><span class="s2">height</span><span class="dl">"</span><span class="p">:</span><span class="mi">450</span><span class="p">},</span><span class="dl">"</span><span class="s2">mobile</span><span class="dl">"</span><span class="p">:{</span><span class="dl">"</span><span class="s2">show</span><span class="dl">"</span><span class="p">:</span><span class="kc">true</span><span class="p">},</span><span class="dl">"</span><span class="s2">log</span><span class="dl">"</span><span class="p">:</span><span class="kc">false</span><span class="p">});</span><span class="nt">&lt;/script&gt;</span>
+</code></pre></div></div>
+
+<h3 id="2复制编译文件">2.复制编译文件</h3>
+
+<p>将public下的<code class="language-plaintext highlighter-rouge">live2dw</code>复制放倒jekyll的主目录下</p>
+
+<p><img src="https://i.loli.net/2021/07/30/248CkBjgTWp7EUa.png" alt="截图录屏_选择区域_20210730162030" /></p>
+
+<p>3.把更改文件push到github</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>git add /dir/to/your/blog
+git commit -m "apply theme"
+git push origin master
+</code></pre></div></div>
+
+<p>博客不会立即显示看板娘，需要一定的时间</p>
+
+<h2 id="5修改看板娘">5.修改看板娘</h2>
+
+<p>如果你需要更改看板娘只需要更改两个地方</p>
+
+<h3 id="1替换live2dw中的模型文件">1.替换live2dw中的模型文件</h3>
+
+<p><img src="https://i.loli.net/2021/07/30/RMCwWXBfc4GLbPh.png" alt="截图录屏_选择区域_20210730160352" /></p>
+
+<h3 id="2更改footer中的代码">2..更改footer中的代码</h3>
+
+<p>保证文件名字和路径保持一致</p>
+
+<h1 id="3参考">3.参考</h1>
+
+<p><a href="https://www.carlme.com/myblog/2019/06/05/myblog-live2d.html">博客jekyll添加模版动画 - IT超仔博客</a></p>
+
+<table>
+  <tbody>
+    <tr>
+      <td>[Hexo博客自定义看板娘教程</td>
+      <td>shadow](https://www.shadowx.vip/2020/10/07/使用Hexo的helper-live2d插件自定义博客看板娘/#导入模型)</td>
+    </tr>
+  </tbody>
+</table>
+:ET

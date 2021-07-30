@@ -13,7 +13,7 @@ github_repo: "https://github.com/xpgege/xpgege.github.io.git" #code repository |
 # Sidebar settings | 侧边栏设置
 sidebar: true                           # whether or not using Sidebar.
 sidebar-about-description: "幸好我爱笑，生活才没那么糟"
-sidebar-avatar: /img/wenqi.jpg      # 头像
+sidebar-avatar: /img/head.jpg      # 头像
 
 
 
