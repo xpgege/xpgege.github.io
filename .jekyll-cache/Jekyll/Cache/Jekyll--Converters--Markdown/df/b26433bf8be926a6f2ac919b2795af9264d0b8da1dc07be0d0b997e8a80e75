@@ -1,0 +1,65 @@
+I"�<h1 id="定义">定义</h1>
+
+<p><strong>转座子</strong>（英语：Transposon，亦称为<strong>转座元件</strong>，<strong>跳跃子</strong>）是一类<a href="https://zh.wikipedia.org/wiki/DNA">DNA</a>序列，它们能够在<a href="https://zh.wikipedia.org/wiki/基因组">基因组</a>中通过<a href="https://zh.wikipedia.org/wiki/转录">转录</a>或<a href="https://zh.wikipedia.org/wiki/逆转录">逆转录</a>，在<a href="https://zh.wikipedia.org/wiki/內切酶">内切酶</a>（Nuclease）的作用下，在其他<a href="https://zh.wikipedia.org/wiki/基因座">基因座</a>上出现。转座子的这种行为，与<a href="https://zh.wikipedia.org/wiki/假基因">假基因</a>（Pseudogene）的出现颇有相似甚至相同之处。有些科学家将后者视为“基因化石”，是透视物种<a href="https://zh.wikipedia.org/wiki/进化">进化</a>的痕迹之一。转座子的发现，证明了<a href="https://zh.wikipedia.org/wiki/基因组">基因组</a>并不是一个静态的集合，而是一个不断在改变自身构成的动态有机体。根据转座子“跳跃”方式的不同，转座子被分为I型和II型转座子。</p>
+
+<p><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/d/dd/Composite_transposon.svg/400px-Composite_transposon.svg.png" alt="img" /></p>
+
+<h1 id="分类">分类</h1>
+
+<p>按照转座方式的不同，可将转座子分为三大类：<strong>I型转座子（Class I elements）</strong>，<strong>II型转座子（Class II elements）</strong>以及<strong>Helitron转座子</strong>。</p>
+
+<p><img src="https://i.loli.net/2021/07/28/92PahYtsJHRv5xG.jpg" alt="preview" /></p>
+
+<h2 id="i型转座子">I型转座子</h2>
+
+<p><strong>I型转座子又叫反转座子（retrotransposon）</strong>。在植物基因组中，反转座子是最常见的转座原件家族，它们占据了许多植物基因组的大部分。根据反转座子的转座机制，人们形象地称其为“复制-粘贴”型转座原件。反转座子在转座时，会先以DNA为模板，在RNA聚合酶II的作用下，转录成一段mRNA，然后再以这段mRNA为模板反转录成cDNA，最后在整合酶的作用下将这段cDNA整合到基因组上新的位置。</p>
+
+<p>根据<strong>两端侧翼有无LTR（long terminal repeat）</strong>，可将反转座子进一步划分为LTR反转座子和非LTR反转座子。LTR 是一段长末端重复序列，其长度从100bp到5kb不等，携带转录起始和终止的信号，位于 LTR 反转座子两端侧翼，调节 mRNA 媒介的形成。</p>
+
+<p>另外，还可<strong>根据能否“自给自足”</strong>，将反转座子分为自主型反转座子和非自主型反转座子。自主型反转座子编码了所有转座必须的蛋白；而非自主型反转座子缺少一些转座必须的蛋白，需要在自主型反转座子的帮助下才能顺利完成转座。植物中数量最多的非自主型反转座子叫做 short interspersed nuclear elements (SINEs)。</p>
+
+<h2 id="ii型转座子">II型转座子</h2>
+
+<p><strong>II型转座子也叫做转座子（transposon），与反转座子“复制-粘贴”的机制不同，II型转座子转座的机制被称为“剪切-粘贴”。</strong>在转座酶的作用下，II型转座子从原来的位置解离下来，再重新整合到染色体上。而原来的位置由于转座子解离形成的断链，在DNA修复的机制下得以修整。最终的结果是，原来的位置少了一段转座子序列，而新位置多了一段转座子序列。</p>
+
+<p>在植物中，数量较多的II型转座子包括 hAT(hobo, Activator and Tam3), CACTA 以及 Mutator-like element (MULE)超家族。和反转座子一样，II型转座子也可分为自主型和非自主型。非自主型转座子不具有转座必须的所有的成分，因此依赖于自主型转座子。</p>
+
+<p>植物基因组中，数量最多的非自主型转座子是MITEs（miniature inverted-repeat transposable elements）。值得一提的是，我们在<a href="https://link.zhihu.com/?target=http%3A//mp.weixin.qq.com/s%3F__biz%3DMzU3ODY3MDM0NA%3D%3D%26mid%3D2247488665%26idx%3D1%26sn%3D28b2379308ed9056d1a2cc439fe3b67e%26chksm%3Dfd708efeca0707e8e36219c2d72e9be44eb3a0b85fd39c67c6baaec99e784b2aef52854b0e37%26scene%3D21%23wechat_redirect">转座子之母：芭芭拉•麦克林托克</a>（请点击阅读）一文中提到过的Ds就是一类非自主型转座子，它需要在Ac的帮助下，才能正常地完成转座作用，进而调节玉米籽粒的颜色。</p>
+
+<h2 id="helitron转座子"><strong>Helitron转座子</strong></h2>
+
+<p><strong>Helitrons 转座子是近年来发现的一种新型 DNA 转座子，最初是利用基于重复序列的计算方法在拟南芥基因组中鉴定出来的。</strong>后来发现，大多数植物和许多动物基因组中都携带 Helitrons 转座子。Helitrons 转座子具有典型的 5’TC 以及 3’CTRR（R为A或G）末端，并在3’末端上游约 15~20bp 处有一个茎环结构，是转座子的终止信号。Helitrons 转座子转座后，通常插入 AT-rich 区域的 AT 靶位点。和反转座子和转座子不同，Helitrons 通过滚环（rolling circle）的方式进行转座。并且，在滚环复制的转座过程中经常捕获和携带基因片段，可导致基因拷贝数的变化，也会在一定程度上促进基因组的进化。</p>
+
+<h1 id="命名">命名</h1>
+
+<p>由于转座子的多样性和复杂性，许多研究转座子的实验室都有各自的命名规则，没有一个统一的标准，导致转座子的名称比较混乱。2007年 <strong><em>Nature Reviews Genetics</em></strong>发表了题为 <strong><em>A unified classification system for eukaryotic transposable elements</em></strong> 的文章，制定了一套统一的真核生物转座子命名规则。文章中将转座子划分为六个等级 class, subclass, order, superfamily, family and subfamily，这六个等级层层嵌套，根据每个等级的特点将转座子进行分类和命名。另外，他们还提出了一套转座子命名的流程和方法，才使人们有了一套可靠的标准，能够更加便捷的对转座子进行命名和注释。</p>
+
+<p><img src="https://pic2.zhimg.com/80/v2-700066897c2f845cac9272c132e6b5d1_720w.jpg" alt="img" /></p>
+
+<p>Reference：https://zhuanlan.zhihu.com/p/183952007</p>
+
+<h1 id="专有名词">专有名词</h1>
+
+<p>Transposons 转座子</p>
+
+<p>transposases 转座酶</p>
+
+<p>TEs：transposable elements</p>
+
+<p>piggyBac transposon  转座子对应的序列</p>
+
+<p>PB：the PiggyBac transposase encoded by the T.ni piggyBac transposon, 转座子编码的蛋白酶</p>
+
+<p>PBLE：PiggyBac-like elements</p>
+
+<p>PGBD：piggyBac transposable element-derived   促进基因的重排</p>
+
+<p>Pgm：a 1065-amino acid protein, plays an essentialcatalytic role in DNA cleavage at IES end（Piggy-Mac）</p>
+
+<p>pgml：pgm-like protein</p>
+
+<p>IESs：Internal Eliminated Sequences</p>
+
+<p>CDR： cysteine rich domain  半胱氨酸</p>
+
+:ET
