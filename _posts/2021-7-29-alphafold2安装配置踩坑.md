@@ -7,9 +7,7 @@ author:     xpgege
 header-img: img/post-web.jpg
 catalog: true
 tags:
-
    - 知识记录
-
 ---
 
 ​	2021年7月15日,deepmind在CASP14中大获全胜的alphafold2终于开源了，Demis Hassabis、John Jumper等人在Nature杂志上发表了文章[Highly accurate protein structure prediction with AlphaFold](https://www.nature.com/articles/s41586-021-03819-2)，这是一个基于神经网络的新模型，其预测的蛋白质结构能达到原子水平的准确度。

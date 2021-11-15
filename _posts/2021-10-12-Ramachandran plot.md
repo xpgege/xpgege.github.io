@@ -7,7 +7,7 @@ author:     xpgege
 header-img: img/post-web.jpg
 catalog: true
 tags:
-	- 知识记录
+	- 蛋白质
 ---
 
 Ramachandran 图是肽中包含的残基（氨基酸）的扭转角 - phi (φ) 和 psi (ψ) - 的图。φ 是 N(i-1),C(i),Ca(i),N(i) 扭转角，ψ 是 C(i),Ca(i),N(i),C (i+1) 扭转角。
