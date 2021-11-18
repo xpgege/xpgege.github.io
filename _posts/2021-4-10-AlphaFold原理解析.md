@@ -1,6 +1,6 @@
 ---
 layout:     post
-title:     Alphafold文献解析
+title:      Alphafold文献解析
 subtitle:   Alphafold文献解析
 date:       2021-4-10
 author:     xpgege

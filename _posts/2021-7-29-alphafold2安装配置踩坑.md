@@ -1,7 +1,7 @@
 ---
 layout:     post
 title:      alphafold2安装配置踩坑
-subtitle:  alphafold2
+subtitle:   alphafold2
 date:       2021-7-29
 author:     xpgege
 header-img: img/post-web.jpg

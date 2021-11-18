@@ -2,7 +2,7 @@
 layout:     post
 title:      alphafold2文献阅读
 subtitle:   alphafold2
-date:       2021-09-03
+date:       2021-9-3
 author:     xpgege
 header-img: img/post-web.jpg
 catalog: true
